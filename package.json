@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
+    "babel-preset-expo": "^55.0.17",
     "expo": "~54.0.33",
+    "expo-linking": "^55.0.13",
     "expo-router": "~6.0.23",
     "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
