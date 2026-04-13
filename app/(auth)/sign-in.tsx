@@ -35,7 +35,7 @@ export default function SignInScreen() {
   }
 
   async function verifyCode() {
-    if (code.length !== 6) return;
+    if (code.length < 6) return;
     setLoading(true);
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim().toLowerCase(),
@@ -84,7 +84,7 @@ export default function SignInScreen() {
         ) : (
           <>
             <Text style={styles.label}>
-              We sent a 6-digit code to{'\n'}
+              We sent a sign-in code to{'\n'}
               <Text style={styles.emailHighlight}>{email}</Text>
             </Text>
             <TextInput
@@ -93,7 +93,7 @@ export default function SignInScreen() {
               value={code}
               onChangeText={setCode}
               keyboardType="number-pad"
-              maxLength={6}
+              maxLength={8}
               autoFocus
             />
             <TouchableOpacity
