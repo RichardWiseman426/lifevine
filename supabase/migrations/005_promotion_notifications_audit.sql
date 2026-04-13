@@ -136,7 +136,9 @@ CREATE INDEX idx_audit_created ON public.audit_log(created_at DESC);
 -- Surfaces all pending-review content for moderators in a
 -- single place, ordered oldest-first (FIFO moderation).
 -- ============================================================
-CREATE VIEW public.moderation_queue AS
+CREATE VIEW public.moderation_queue
+WITH (security_invoker = true)
+AS
     SELECT
         'testimony'         AS content_type,
         t.id                AS content_id,
