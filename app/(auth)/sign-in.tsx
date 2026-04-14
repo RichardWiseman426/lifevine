@@ -1,52 +1,29 @@
-import { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
+import { router } from 'expo-router';
+import { useState } from 'react';
 import { supabase } from '../../src/lib/supabase';
 
-type Step = 'email' | 'code';
-
 export default function SignInScreen() {
-  const [step, setStep] = useState<Step>('email');
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading]   = useState(false);
 
-  async function sendCode() {
-    if (!email.trim()) return;
+  async function handleSignIn() {
+    const e = email.trim().toLowerCase();
+    if (!e || !password) {
+      Alert.alert('Missing fields', 'Please enter your email and password.');
+      return;
+    }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: { shouldCreateUser: true },
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email: e, password });
     setLoading(false);
     if (error) {
-      Alert.alert('Error', error.message);
-    } else {
-      setStep('code');
+      Alert.alert('Sign in failed', 'Incorrect email or password. Try again or reset your password.');
     }
-  }
-
-  async function verifyCode() {
-    if (code.length < 6) return;
-    setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim().toLowerCase(),
-      token: code.trim(),
-      type: 'email',
-    });
-    setLoading(false);
-    if (error) {
-      Alert.alert('Invalid code', 'Please check the code and try again.');
-    }
-    // On success, the auth listener in _layout.tsx handles navigation
+    // On success _layout.tsx listener handles routing
   }
 
   return (
@@ -54,132 +31,97 @@ export default function SignInScreen() {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>LifeVine</Text>
         <Text style={styles.subtitle}>Connect. Serve. Belong.</Text>
 
-        {step === 'email' ? (
-          <>
-            <Text style={styles.label}>Enter your email to get started</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="your@email.com"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoFocus
-            />
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={sendCode}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? 'Sending…' : 'Send Code'}
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>
-              We sent a sign-in code to{'\n'}
-              <Text style={styles.emailHighlight}>{email}</Text>
-            </Text>
-            <TextInput
-              style={[styles.input, styles.codeInput]}
-              placeholder="000000"
-              value={code}
-              onChangeText={setCode}
-              keyboardType="number-pad"
-              maxLength={8}
-              autoFocus
-            />
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={verifyCode}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? 'Verifying…' : 'Verify Code'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => { setStep('email'); setCode(''); }}
-            >
-              <Text style={styles.backText}>← Use a different email</Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="your@email.com"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          textContentType="emailAddress"
+          returnKeyType="next"
+        />
+
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Your password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          autoComplete="current-password"
+          textContentType="password"
+          returnKeyType="done"
+          onSubmitEditing={handleSignIn}
+        />
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSignIn}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.linkBtn}
+          onPress={() => router.push('/(auth)/forgot-password')}
+        >
+          <Text style={styles.linkText}>Forgot password?</Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => router.push('/(auth)/sign-up')}
+        >
+          <Text style={styles.secondaryButtonText}>Create an Account</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: '#fff' },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 28,
-  },
-  title: {
-    fontSize: 38,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#888',
-    marginBottom: 48,
-  },
-  label: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 16,
-    lineHeight: 24,
-  },
-  emailHighlight: {
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
+  container: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 28, paddingVertical: 40 },
+  title: { fontSize: 38, fontWeight: '800', color: '#1a1a1a', marginBottom: 6 },
+  subtitle: { fontSize: 16, color: '#888', marginBottom: 48 },
+  label: { fontSize: 13, fontWeight: '700', color: '#555', marginBottom: 6 },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    marginBottom: 16,
-    backgroundColor: '#fafafa',
-  },
-  codeInput: {
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: 8,
-    textAlign: 'center',
+    borderWidth: 1, borderColor: '#ddd', borderRadius: 12,
+    paddingHorizontal: 16, paddingVertical: 14,
+    fontSize: 16, marginBottom: 16, backgroundColor: '#fafafa', color: '#1a1a1a',
   },
   button: {
-    backgroundColor: '#2D6A4F',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
+    backgroundColor: '#2D6A4F', borderRadius: 12,
+    paddingVertical: 16, alignItems: 'center', marginTop: 4,
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  linkBtn: { alignItems: 'center', marginTop: 16 },
+  linkText: { color: '#2D6A4F', fontSize: 14, fontWeight: '600' },
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 24, gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#eee' },
+  dividerText: { fontSize: 13, color: '#bbb' },
+  secondaryButton: {
+    borderWidth: 1.5, borderColor: '#2D6A4F', borderRadius: 12,
+    paddingVertical: 15, alignItems: 'center',
   },
-  backButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  backText: {
-    color: '#888',
-    fontSize: 14,
-  },
+  secondaryButtonText: { color: '#2D6A4F', fontSize: 16, fontWeight: '700' },
 });

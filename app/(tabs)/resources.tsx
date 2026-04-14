@@ -5,41 +5,41 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useTestimonies } from '../../src/hooks/useTestimonies';
-import { TestimonyCard } from '../../src/components/TestimonyCard';
+import { useResources } from '../../src/hooks/useResources';
+import { ResourceCard } from '../../src/components/ResourceCard';
 import { EmptyState } from '../../src/components/EmptyState';
+import { useIntentStore } from '../../src/store/intent';
 
 const CATEGORIES = [
-  { label: 'All', value: '' },
-  { label: 'Healing', value: 'healing' },
-  { label: 'Provision', value: 'provision' },
-  { label: 'Community', value: 'community' },
-  { label: 'Restoration', value: 'restoration' },
-  { label: 'Salvation', value: 'salvation' },
+  { label: 'All',           value: '' },
+  { label: 'Mental Health', value: 'mental_health' },
+  { label: 'Food',          value: 'food' },
+  { label: 'Housing',       value: 'housing' },
+  { label: 'Medical',       value: 'medical' },
+  { label: 'Recovery',      value: 'substance' },
+  { label: 'Financial',     value: 'financial' },
+  { label: 'Legal',         value: 'legal' },
+  { label: 'Spiritual',     value: 'spiritual' },
+  { label: 'Community',     value: 'community' },
 ];
 
-export default function TestimoniesScreen() {
+export default function ResourcesScreen() {
+  const { mode } = useIntentStore();
   const [category, setCategory] = useState('');
-  const { testimonies, loading } = useTestimonies(category);
+  const { resources, loading } = useResources(category);
+
+  const heading = mode === 'support' ? 'Support Resources' : 'Resources';
+  const sub     = mode === 'support'
+    ? 'Counseling, care, and community services.'
+    : 'Support services and helpful contacts.';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.heading}>Stories</Text>
-            <Text style={styles.sub}>Real experiences. Real change.</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => router.push('/submit-testimony')}
-          >
-            <Text style={styles.addBtnText}>+ Share</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.heading}>{heading}</Text>
+        <Text style={styles.sub}>{sub}</Text>
       </View>
 
-      {/* Category filter */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -64,19 +64,19 @@ export default function TestimoniesScreen() {
         </View>
       ) : (
         <FlatList
-          data={testimonies}
-          keyExtractor={(t) => t.id}
+          data={resources}
+          keyExtractor={(r) => r.id}
           renderItem={({ item }) => (
-            <TestimonyCard
-              testimony={item}
-              onPress={() => router.push(`/testimony/${item.id}`)}
+            <ResourceCard
+              resource={item}
+              onPress={() => router.push(`/resource/${item.id}`)}
             />
           )}
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <EmptyState
-              title="No stories yet"
-              subtitle="Be the first to share what God has done"
+              title="No resources yet"
+              subtitle="Check back soon — resources are being added regularly"
             />
           }
         />
@@ -88,14 +88,8 @@ export default function TestimoniesScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#f7f7f7' },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 },
-  headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   heading: { fontSize: 28, fontWeight: '800', color: '#1a1a1a' },
   sub: { fontSize: 14, color: '#888', marginTop: 2 },
-  addBtn: {
-    backgroundColor: '#2D6A4F', borderRadius: 20,
-    paddingHorizontal: 16, paddingVertical: 8, marginTop: 4,
-  },
-  addBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
   filterRow: { paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
   filterChip: {
     borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7,
