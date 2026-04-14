@@ -8,6 +8,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: '#2D6A4F',
         tabBarInactiveTintColor: '#999',
+        tabBarStyle: { borderTopColor: '#f0f0f0' },
       }}
     >
       <Tabs.Screen
@@ -29,6 +30,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{ title: 'You', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text> }}
+      />
+      {/* resources screen stays in (tabs) folder for routing but has no tab entry */}
+      <Tabs.Screen
+        name="resources"
+        options={{ href: null }}
       />
     </Tabs>
   );
