@@ -1,12 +1,12 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { Testimony } from '../hooks/useTestimonies';
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
-  healing:      { bg: '#FEF3C7', text: '#92400E' },
-  provision:    { bg: '#ECFDF5', text: '#065F46' },
-  community:    { bg: '#EFF6FF', text: '#1E40AF' },
-  restoration:  { bg: '#FDF2F8', text: '#9D174D' },
-  salvation:    { bg: '#F5F3FF', text: '#5B21B6' },
+const CATEGORY_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
+  healing:      { bg: '#FEF3C7', text: '#92400E', bar: '#F59E0B' },
+  provision:    { bg: '#ECFDF5', text: '#065F46', bar: '#10B981' },
+  community:    { bg: '#EFF6FF', text: '#1E40AF', bar: '#3B82F6' },
+  restoration:  { bg: '#FDF2F8', text: '#9D174D', bar: '#EC4899' },
+  salvation:    { bg: '#F5F3FF', text: '#5B21B6', bar: '#8B5CF6' },
 };
 
 function timeAgo(iso: string) {
@@ -25,39 +25,44 @@ interface Props {
 }
 
 export function TestimonyCard({ testimony: t, onPress }: Props) {
-  const color = CATEGORY_COLORS[t.category] ?? { bg: '#F3F4F6', text: '#374151' };
+  const color = CATEGORY_COLORS[t.category] ?? { bg: '#F5F0E8', text: '#78716C', bar: '#A8A29E' };
   const authorName = t.is_anonymous ? 'Anonymous' : (t.profiles?.display_name ?? 'Someone');
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      {t.is_featured && (
-        <View style={styles.featuredBanner}>
-          <Text style={styles.featuredText}>Featured Story</Text>
+      {/* Left accent bar */}
+      <View style={[styles.accentBar, { backgroundColor: color.bar }]} />
+
+      <View style={styles.inner}>
+        {t.is_featured && (
+          <View style={styles.featuredBanner}>
+            <Text style={styles.featuredText}>Featured Story</Text>
+          </View>
+        )}
+        <View style={styles.header}>
+          <View style={[styles.chip, { backgroundColor: color.bg, borderColor: color.bar + '44' }]}>
+            <Text style={[styles.chipText, { color: color.text }]}>
+              {t.category.charAt(0).toUpperCase() + t.category.slice(1)}
+            </Text>
+          </View>
+          <Text style={styles.time}>{timeAgo(t.created_at)}</Text>
         </View>
-      )}
-      <View style={styles.header}>
-        <View style={[styles.chip, { backgroundColor: color.bg }]}>
-          <Text style={[styles.chipText, { color: color.text }]}>
-            {t.category.charAt(0).toUpperCase() + t.category.slice(1)}
-          </Text>
-        </View>
-        <Text style={styles.time}>{timeAgo(t.created_at)}</Text>
-      </View>
-      <Text style={styles.title} numberOfLines={2}>{t.title}</Text>
-      <Text style={styles.body} numberOfLines={3}>{t.body}</Text>
-      <View style={styles.footer}>
-        <View style={styles.authorRow}>
-          <View style={styles.authorDot} />
-          <Text style={styles.author}>{authorName}</Text>
-          {t.organizations?.name && (
-            <Text style={styles.orgName}> · {t.organizations.name}</Text>
+        <Text style={styles.title} numberOfLines={2}>{t.title}</Text>
+        <Text style={styles.body} numberOfLines={3}>{t.body}</Text>
+        <View style={styles.footer}>
+          <View style={styles.authorRow}>
+            <View style={[styles.authorDot, { backgroundColor: color.bar }]} />
+            <Text style={styles.author}>{authorName}</Text>
+            {t.organizations?.name && (
+              <Text style={styles.orgName}> · {t.organizations.name}</Text>
+            )}
+          </View>
+          {t.response_count > 0 && (
+            <Text style={styles.responses}>
+              {t.response_count} {t.response_count === 1 ? 'response' : 'responses'}
+            </Text>
           )}
         </View>
-        {t.response_count > 0 && (
-          <Text style={styles.responses}>
-            {t.response_count} {t.response_count === 1 ? 'response' : 'responses'}
-          </Text>
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -65,36 +70,58 @@ export function TestimonyCard({ testimony: t, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     marginHorizontal: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    flexDirection: 'row',
+    overflow: 'hidden',
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
-    shadowRadius: 6,
+    shadowRadius: 10,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+  },
+  accentBar: {
+    width: 3,
+    borderRadius: 3,
+    margin: 14,
+    marginRight: 0,
+    flexShrink: 0,
+  },
+  inner: {
+    flex: 1,
+    padding: 18,
+    paddingLeft: 14,
   },
   featuredBanner: {
-    backgroundColor: '#FEF3C7',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    backgroundColor: '#FDF3E3',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     alignSelf: 'flex-start',
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#F0D9BC',
   },
-  featuredText: { fontSize: 11, color: '#92400E', fontWeight: '600' },
+  featuredText: { fontSize: 11, color: '#B8864E', fontWeight: '700', letterSpacing: 0.3 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  chip: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
+  chip: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+  },
   chipText: { fontSize: 12, fontWeight: '600' },
-  time: { fontSize: 12, color: '#aaa' },
-  title: { fontSize: 16, fontWeight: '700', color: '#1a1a1a', marginBottom: 8 },
-  body: { fontSize: 13, color: '#555', lineHeight: 20, marginBottom: 12 },
+  time: { fontSize: 12, color: '#A8A29E' },
+  title: { fontSize: 16, fontWeight: '700', color: '#1C1917', marginBottom: 8, letterSpacing: -0.2 },
+  body: { fontSize: 13, color: '#78716C', lineHeight: 20, marginBottom: 14 },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   authorRow: { flexDirection: 'row', alignItems: 'center' },
-  authorDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2D6A4F', marginRight: 6 },
-  author: { fontSize: 12, color: '#555', fontWeight: '600' },
-  orgName: { fontSize: 12, color: '#888' },
-  responses: { fontSize: 12, color: '#888' },
+  authorDot: { width: 7, height: 7, borderRadius: 4, marginRight: 6 },
+  author: { fontSize: 12, color: '#78716C', fontWeight: '600' },
+  orgName: { fontSize: 12, color: '#A8A29E' },
+  responses: { fontSize: 12, color: '#A8A29E' },
 });

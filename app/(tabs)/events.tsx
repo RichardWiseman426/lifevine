@@ -49,10 +49,16 @@ export default function EventsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#f7f7f7' },
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
-  heading: { fontSize: 28, fontWeight: '800', color: '#1a1a1a' },
-  sub: { fontSize: 14, color: '#888', marginTop: 2 },
-  list: { paddingTop: 4, paddingBottom: 32 },
+  safe: { flex: 1, backgroundColor: '#F5F0E8' },
+  header: { paddingHorizontal: 22, paddingTop: 14, paddingBottom: 20 },
+  heading: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#1C1917',
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  sub: { fontSize: 14, color: '#78716C', lineHeight: 20 },
+  list: { paddingTop: 4, paddingBottom: 40 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

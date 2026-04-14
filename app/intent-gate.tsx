@@ -69,7 +69,8 @@ export default function IntentGateScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>What do you need help with?</Text>
+          <Text style={styles.wordmark}>LifeVine</Text>
+          <Text style={styles.title}>What do you need{'\n'}help with today?</Text>
           <Text style={styles.subtitle}>We'll take you to the right place.</Text>
         </View>
 
@@ -80,9 +81,11 @@ export default function IntentGateScreen() {
               key={opt.mode}
               style={styles.optionBtn}
               onPress={() => handleSelect(opt)}
-              activeOpacity={0.75}
+              activeOpacity={0.72}
             >
-              <Text style={styles.optionIcon}>{opt.icon}</Text>
+              <View style={styles.iconWrap}>
+                <Text style={styles.optionIcon}>{opt.icon}</Text>
+              </View>
               <View style={styles.optionText}>
                 <Text style={styles.optionLabel}>{opt.label}</Text>
                 <Text style={styles.optionSub}>{opt.sub}</Text>
@@ -102,41 +105,63 @@ export default function IntentGateScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1, backgroundColor: '#F5F0E8' },
   container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
 
-  header: { marginBottom: 36 },
-  title: {
-    fontSize: 28,
+  header: { marginBottom: 32 },
+  wordmark: {
+    fontSize: 26,
     fontWeight: '800',
-    color: '#1a1a1a',
-    lineHeight: 34,
+    color: '#2D6A4F',
+    letterSpacing: -0.8,
+    marginBottom: 18,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#1C1917',
+    lineHeight: 38,
+    letterSpacing: -0.5,
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#888',
+    fontSize: 15,
+    color: '#78716C',
     lineHeight: 22,
   },
 
-  options: { gap: 12, marginBottom: 32 },
+  options: { gap: 10, marginBottom: 30 },
   optionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#efefef',
-    paddingVertical: 18,
-    paddingHorizontal: 18,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     gap: 14,
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  optionIcon: { fontSize: 26, width: 36, textAlign: 'center' },
+  iconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F5F0E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  optionIcon: { fontSize: 22 },
   optionText: { flex: 1 },
-  optionLabel: { fontSize: 16, fontWeight: '700', color: '#1a1a1a', marginBottom: 2 },
-  optionSub: { fontSize: 13, color: '#888', lineHeight: 17 },
-  optionChevron: { fontSize: 24, color: '#ccc', marginLeft: 4 },
+  optionLabel: { fontSize: 15, fontWeight: '700', color: '#1C1917', marginBottom: 2, letterSpacing: -0.1 },
+  optionSub: { fontSize: 12, color: '#78716C', lineHeight: 17 },
+  optionChevron: { fontSize: 22, color: '#C4B9AF', marginLeft: 4 },
 
-  skipBtn: { alignItems: 'center', paddingVertical: 12 },
-  skipText: { fontSize: 15, color: '#aaa', fontWeight: '500' },
+  skipBtn: { alignItems: 'center', paddingVertical: 14 },
+  skipText: { fontSize: 14, color: '#A8A29E', fontWeight: '500' },
 });
