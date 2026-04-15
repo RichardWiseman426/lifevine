@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { BackHeader } from '../../src/components/BackHeader';
 import { useState } from 'react';
 import { useTestimony } from '../../src/hooks/useTestimonies';
 import { supabase } from '../../src/lib/supabase';
@@ -46,11 +47,8 @@ export default function TestimonyDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackHeader title="Story" />
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-
         {/* Category */}
         <View style={styles.chip}>
           <Text style={styles.chipText}>{t.category.charAt(0).toUpperCase() + t.category.slice(1)}</Text>

@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { BackHeader } from '../../src/components/BackHeader';
 import { useResource } from '../../src/hooks/useResources';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -39,11 +40,8 @@ export default function ResourceDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackHeader title="Resource" />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-
         {r.is_crisis && (
           <View style={styles.crisisBanner}>
             <Text style={styles.crisisBannerText}>🚨 Crisis Resource — Help is available now</Text>

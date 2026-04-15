@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LifeVine Brand Preview</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F5F0E8;
+    color: #1C1917;
+    padding: 48px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #A8A29E;
+    margin-bottom: 52px;
+  }
+
+  /* ── Section layout ── */
+  .section { margin-bottom: 72px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #A8A29E;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E5DDD4;
+  }
+  .row {
+    display: flex;
+    gap: 32px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .item-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #A8A29E;
+  }
+
+  /* ── Background swatches ── */
+  .bg-white   { background: #FFFFFF; border-radius: 20px; padding: 32px 36px; display:flex; align-items:center; justify-content:center; border: 1px solid #E5DDD4; }
+  .bg-linen   { background: #F5F0E8; border-radius: 20px; padding: 32px 36px; display:flex; align-items:center; justify-content:center; border: 1px solid #E5DDD4; }
+  .bg-dark    { background: #1A2E1A; border-radius: 20px; padding: 32px 36px; display:flex; align-items:center; justify-content:center; }
+  .bg-primary { background: #2E7D32; border-radius: 20px; padding: 32px 36px; display:flex; align-items:center; justify-content:center; }
+
+  /* ── Lockup panel ── */
+  .lockup {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    border: 1px solid #E5DDD4;
+  }
+  .lockup-divider {
+    width: 1px;
+    height: 80px;
+    background: #E5DDD4;
+  }
+  .wordmark {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1;
+  }
+  .wordmark span.life { color: #1B5E20; }
+  .wordmark span.vine { color: #4CAF50; }
+
+  /* ── Palette ── */
+  .swatch { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .swatch-box { width: 70px; height: 70px; border-radius: 16px; }
+  .swatch-hex { font-size: 10px; font-weight: 700; color: #78716C; letter-spacing: 0.5px; }
+  .swatch-name { font-size: 10px; color: #A8A29E; }
+
+  /* ── Remove white bg from logos on light surfaces ── */
+  img.logo { mix-blend-mode: multiply; }
+  /* On dark surfaces white bg would go black with multiply — hide those until transparent PNGs are ready */
+  .bg-dark img.logo, .bg-primary img.logo { mix-blend-mode: normal; opacity: 0.92; }
+</style>
+</head>
+<body>
+
+<h1>LifeVine — Brand Identity</h1>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- 01 — PRIMARY MARK                                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">01 — Primary Mark</div>
+  <div class="row">
+
+    <div class="item">
+      <div class="bg-white">
+        <img class="logo" src="images/lv-mark.png" width="220" alt="LV Mark" style="display:block;" />
+      </div>
+      <span class="item-label">On White</span>
+    </div>
+
+    <div class="item">
+      <div class="bg-linen">
+        <img class="logo" src="images/lv-mark.png" width="220" alt="LV Mark" style="display:block;" />
+      </div>
+      <span class="item-label">On Linen</span>
+    </div>
+
+    <div class="item">
+      <div class="bg-dark">
+        <img class="logo" src="images/lv-mark.png" width="220" alt="LV Mark" style="display:block;" />
+      </div>
+      <span class="item-label">On Dark</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- 02 — APP ICON                                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">02 — App Icon</div>
+  <div class="row" style="align-items:center;">
+
+    <div class="item">
+      <img class="logo" src="images/app-icon.png" width="180" alt="App Icon" style="display:block;" />
+      <span class="item-label">180px</span>
+    </div>
+
+    <div class="item">
+      <img class="logo" src="images/app-icon.png" width="120" alt="App Icon" style="display:block;" />
+      <span class="item-label">120px</span>
+    </div>
+
+    <div class="item">
+      <img class="logo" src="images/app-icon.png" width="80" alt="App Icon" style="display:block;" />
+      <span class="item-label">80px</span>
+    </div>
+
+    <div class="item">
+      <img class="logo" src="images/app-icon.png" width="48" alt="App Icon" style="display:block;" />
+      <span class="item-label">48px</span>
+    </div>
+
+    <div class="item">
+      <div class="bg-dark">
+        <img class="logo" src="images/app-icon.png" width="100" alt="App Icon" style="display:block;" />
+      </div>
+      <span class="item-label">On Dark</span>
+    </div>
+
+    <div class="item">
+      <div class="bg-linen">
+        <img class="logo" src="images/app-icon.png" width="100" alt="App Icon" style="display:block;" />
+      </div>
+      <span class="item-label">On Linen</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- 03 — MONOGRAM VARIANT                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">03 — Monogram Variant</div>
+  <div class="row" style="align-items:center;">
+
+    <div class="item">
+      <img class="logo" src="images/monogram.png" width="180" alt="Monogram" style="display:block;" />
+      <span class="item-label">180px</span>
+    </div>
+
+    <div class="item">
+      <img class="logo" src="images/monogram.png" width="120" alt="Monogram" style="display:block;" />
+      <span class="item-label">120px</span>
+    </div>
+
+    <div class="item">
+      <img class="logo" src="images/monogram.png" width="80" alt="Monogram" style="display:block;" />
+      <span class="item-label">80px</span>
+    </div>
+
+    <div class="item">
+      <div class="bg-dark">
+        <img class="logo" src="images/monogram.png" width="100" alt="Monogram" style="display:block;" />
+      </div>
+      <span class="item-label">On Dark</span>
+    </div>
+
+    <div class="item">
+      <div class="bg-linen">
+        <img class="logo" src="images/monogram.png" width="100" alt="Monogram" style="display:block;" />
+      </div>
+      <span class="item-label">On Linen</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- 04 — FULL BRAND LOCKUP                                     -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">04 — Brand Lockup</div>
+
+  <!-- Light lockup -->
+  <div class="lockup" style="margin-bottom: 20px;">
+    <img class="logo" src="images/lv-mark.png" height="90" alt="LV Mark" style="display:block;" />
+    <div class="lockup-divider"></div>
+    <img class="logo" src="images/app-icon.png" height="72" alt="App Icon" style="display:block;" />
+    <div class="lockup-divider"></div>
+    <img class="logo" src="images/monogram.png" height="72" alt="Monogram" style="display:block;" />
+    <div class="lockup-divider"></div>
+    <div class="wordmark"><span class="life">Life</span><span class="vine">Vine</span></div>
+  </div>
+
+  <!-- Dark lockup -->
+  <div class="bg-dark" style="padding: 40px 48px; border-radius: 20px; gap: 40px; display:flex; align-items:center; flex-wrap:wrap;">
+    <img class="logo" src="images/lv-mark.png" height="90" alt="LV Mark" style="display:block;" />
+    <div style="width:1px; height:80px; background:rgba(255,255,255,0.15);"></div>
+    <img class="logo" src="images/app-icon.png" height="72" alt="App Icon" style="display:block;" />
+    <div style="width:1px; height:80px; background:rgba(255,255,255,0.15);"></div>
+    <img class="logo" src="images/monogram.png" height="72" alt="Monogram" style="display:block;" />
+    <div style="width:1px; height:80px; background:rgba(255,255,255,0.15);"></div>
+    <div class="wordmark"><span style="color:#A5D6A7;">Life</span><span style="color:#66BB6A;">Vine</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- 05 — COLOR SYSTEM                                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">05 — Color System</div>
+  <div class="row" style="align-items:flex-start;">
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#2E7D32;"></div>
+      <span class="swatch-hex">#2E7D32</span>
+      <span class="swatch-name">Forest · Primary</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#43A047;"></div>
+      <span class="swatch-hex">#43A047</span>
+      <span class="swatch-name">Mid Green</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#66BB6A;"></div>
+      <span class="swatch-hex">#66BB6A</span>
+      <span class="swatch-name">Leaf Green</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#A5D6A7;"></div>
+      <span class="swatch-hex">#A5D6A7</span>
+      <span class="swatch-name">Pale Green</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#F5F0E8; border:1px solid #E5DDD4;"></div>
+      <span class="swatch-hex">#F5F0E8</span>
+      <span class="swatch-name">Linen · BG</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#FFFFFF; border:1px solid #E5DDD4;"></div>
+      <span class="swatch-hex">#FFFFFF</span>
+      <span class="swatch-name">White · Surface</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#1C1917;"></div>
+      <span class="swatch-hex">#1C1917</span>
+      <span class="swatch-name">Stone · Text</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#78716C;"></div>
+      <span class="swatch-hex">#78716C</span>
+      <span class="swatch-name">Warm Gray</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#B8864E;"></div>
+      <span class="swatch-hex">#B8864E</span>
+      <span class="swatch-name">Amber · Accent</span>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-box" style="background:#1A2E1A;"></div>
+      <span class="swatch-hex">#1A2E1A</span>
+      <span class="swatch-name">Dark · BG Alt</span>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

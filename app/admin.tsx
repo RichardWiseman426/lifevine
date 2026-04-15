@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { BackHeader } from '../src/components/BackHeader';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../src/lib/supabase';
 import { useAuthStore } from '../src/store/auth';
@@ -90,11 +91,8 @@ export default function AdminScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackHeader title="Moderation" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.heading}>Moderation</Text>
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{pending.length}</Text>
         </View>

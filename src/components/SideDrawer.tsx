@@ -12,7 +12,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(SCREEN_WIDTH * 0.78, 320);
 
 const NAV_ITEMS = [
-  { label: 'Explore',    icon: '🧭', route: '/(tabs)'               },
+  { label: 'Home',       icon: '🏠', route: '/(tabs)'               },
   { label: 'Serve',      icon: '🤝', route: '/(tabs)/opportunities'  },
   { label: 'Events',     icon: '📅', route: '/(tabs)/events'         },
   { label: 'Stories',    icon: '💬', route: '/(tabs)/testimonies'    },

@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { BackHeader } from '../../src/components/BackHeader';
 import { useEvent } from '../../src/hooks/useEvents';
 import { supabase } from '../../src/lib/supabase';
 import { useAuthStore } from '../../src/store/auth';
@@ -43,11 +44,8 @@ export default function EventDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackHeader title="Event" />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-
         <View style={styles.chipRow}>
           <View style={styles.chip}>
             <Text style={styles.chipText}>{ev.category.replace(/_/g, ' ')}</Text>

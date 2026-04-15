@@ -12,7 +12,7 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' },
         }}
       >
-        <Tabs.Screen name="index"        options={{ title: 'Explore'   }} />
+        <Tabs.Screen name="index"        options={{ title: 'Home'      }} />
         <Tabs.Screen name="opportunities" options={{ title: 'Serve'     }} />
         <Tabs.Screen name="events"       options={{ title: 'Events'    }} />
         <Tabs.Screen name="testimonies"  options={{ title: 'Stories'   }} />

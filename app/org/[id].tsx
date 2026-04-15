@@ -2,6 +2,7 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking, Activity
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useOrganization } from '../../src/hooks/useOrganizations';
+import { BackHeader } from '../../src/components/BackHeader';
 
 const CATEGORY_LABELS: Record<string, string> = {
   church: 'Church', ministry: 'Ministry', support_group: 'Support Group',
@@ -24,12 +25,8 @@ export default function OrgDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackHeader title={org.name} />
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Back */}
-        <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-
         {/* Hero */}
         <View style={styles.heroAvatar}>
           <Text style={styles.heroInitials}>{org.name.slice(0, 2).toUpperCase()}</Text>

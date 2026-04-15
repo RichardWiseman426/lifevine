@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Linking, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { BackHeader } from '../../src/components/BackHeader';
 import { useOpportunity } from '../../src/hooks/useOpportunities';
 import { supabase } from '../../src/lib/supabase';
 import { useAuthStore } from '../../src/store/auth';
@@ -52,11 +53,8 @@ export default function OpportunityDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackHeader title="Opportunity" />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-
         {/* Header info */}
         <View style={styles.chipRow}>
           <View style={styles.chip}>

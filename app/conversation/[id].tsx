@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { BackHeader } from '../../src/components/BackHeader';
 import { useState, useEffect, useRef } from 'react';
 import { useMessages } from '../../src/hooks/useConversations';
 import { useAuthStore } from '../../src/store/auth';
@@ -44,14 +45,7 @@ export default function ConversationScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Conversation</Text>
-        <View style={{ width: 50 }} />
-      </View>
+      <BackHeader title="Conversation" />
 
       <KeyboardAvoidingView
         style={styles.flex}

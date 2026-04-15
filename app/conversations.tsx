@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { BackHeader } from '../src/components/BackHeader';
 import { useConversations } from '../src/hooks/useConversations';
 import { useAuthStore } from '../src/store/auth';
 import { EmptyState } from '../src/components/EmptyState';
@@ -37,12 +38,7 @@ export default function ConversationsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.heading}>Messages</Text>
-      </View>
+      <BackHeader title="Messages" />
 
       <FlatList
         data={conversations}
