@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { useTestimonies } from '../../src/hooks/useTestimonies';
 import { TestimonyCard } from '../../src/components/TestimonyCard';
 import { EmptyState } from '../../src/components/EmptyState';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
 
 const CATEGORIES = [
   { label: 'All', value: '' },
@@ -24,20 +25,15 @@ export default function TestimoniesScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.heading}>Stories</Text>
-            <Text style={styles.sub}>Real experiences. Real change.</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => router.push('/submit-testimony')}
-          >
+      <ScreenHeader
+        title="Stories"
+        subtitle="Real experiences. Real change."
+        rightElement={
+          <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/submit-testimony')}>
             <Text style={styles.addBtnText}>+ Share</Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        }
+      />
 
       {/* Category filter */}
       <ScrollView
@@ -87,16 +83,6 @@ export default function TestimoniesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F0E8' },
-  header: { paddingHorizontal: 22, paddingTop: 14, paddingBottom: 16 },
-  headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  heading: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#1C1917',
-    letterSpacing: -0.5,
-    marginBottom: 4,
-  },
-  sub: { fontSize: 14, color: '#78716C', lineHeight: 20 },
   addBtn: {
     backgroundColor: '#2D6A4F',
     borderRadius: 999,

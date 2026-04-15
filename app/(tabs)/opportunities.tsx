@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  Text,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { router } from 'expo-router';
 import { useOpportunities } from '../../src/hooks/useOpportunities';
 import { OpportunityCard } from '../../src/components/OpportunityCard';
 import { EmptyState } from '../../src/components/EmptyState';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
 
 const CATEGORIES = [
   { label: 'All', value: '' },
@@ -29,11 +30,7 @@ export default function OpportunitiesScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.heading}>Serve</Text>
-        <Text style={styles.sub}>Take meaningful action in your community</Text>
-      </View>
+      <ScreenHeader title="Serve" subtitle="Take meaningful action in your community" />
 
       {/* Category filter */}
       <ScrollView
@@ -84,15 +81,6 @@ export default function OpportunitiesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F0E8' },
-  header: { paddingHorizontal: 22, paddingTop: 14, paddingBottom: 16 },
-  heading: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#1C1917',
-    letterSpacing: -0.5,
-    marginBottom: 4,
-  },
-  sub: { fontSize: 14, color: '#78716C', lineHeight: 20 },
   filterRow: { paddingHorizontal: 16, paddingBottom: 14, gap: 8 },
   filterChip: {
     borderRadius: 999,

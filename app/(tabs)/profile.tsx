@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../../src/store/auth';
 import { useSettingsStore } from '../../src/store/settings';
 import { useMyOrgs, useUpdateProfile } from '../../src/hooks/useProfile';
+import { useDrawerStore } from '../../src/store/drawer';
 
 const CATEGORY_LABELS: Record<string, string> = {
   church: 'Church', ministry: 'Ministry', support_group: 'Support Group',
@@ -23,6 +24,7 @@ export default function ProfileScreen() {
   const { skipIntentGate, setSkipIntentGate } = useSettingsStore();
   const { orgs, loading: orgsLoading } = useMyOrgs();
   const { updateProfile, saving } = useUpdateProfile();
+  const { open } = useDrawerStore();
 
   const [editVisible, setEditVisible] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
@@ -66,6 +68,16 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
+
+        {/* Top bar with hamburger */}
+        <View style={styles.profileTopBar}>
+          <Text style={styles.profileTopTitle}>Profile</Text>
+          <TouchableOpacity onPress={open} style={styles.profileHamburger} hitSlop={{top:10,bottom:10,left:10,right:10}}>
+            <View style={styles.hamLine} />
+            <View style={[styles.hamLine, {width: 13}]} />
+            <View style={styles.hamLine} />
+          </TouchableOpacity>
+        </View>
 
         {/* Avatar + name */}
         <View style={styles.heroSection}>
@@ -215,8 +227,13 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#f7f7f7' },
+  safe: { flex: 1, backgroundColor: '#F5F0E8' },
   scroll: { padding: 20, paddingBottom: 48 },
+
+  profileTopBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 22, paddingTop: 14, paddingBottom: 8 },
+  profileTopTitle: { fontSize: 20, fontWeight: '700', color: '#1C1917' },
+  profileHamburger: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1, borderColor: '#E5DDD4' },
+  hamLine: { width: 18, height: 2, borderRadius: 2, backgroundColor: '#1C1917' },
 
   heroSection: { alignItems: 'center', paddingVertical: 24, marginBottom: 8 },
   avatar: {

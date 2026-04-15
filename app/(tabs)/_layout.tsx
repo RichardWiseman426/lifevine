@@ -1,49 +1,31 @@
+import { View, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { SideDrawer } from '../../src/components/SideDrawer';
 
 export default function TabLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#2D6A4F',
-        tabBarInactiveTintColor: '#A8A29E',
-        tabBarStyle: {
-          backgroundColor: '#FDFAF5',
-          borderTopColor: '#E5DDD4',
-          borderTopWidth: 1,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{ title: 'Explore', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🧭</Text> }}
-      />
-      <Tabs.Screen
-        name="opportunities"
-        options={{ title: 'Serve', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🤝</Text> }}
-      />
-      <Tabs.Screen
-        name="events"
-        options={{ title: 'Events', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📅</Text> }}
-      />
-      <Tabs.Screen
-        name="testimonies"
-        options={{ title: 'Stories', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>💬</Text> }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{ title: 'You', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text> }}
-      />
-      {/* resources screen stays in (tabs) folder for routing but has no tab entry */}
-      <Tabs.Screen
-        name="resources"
-        options={{ href: null }}
-      />
-    </Tabs>
+    <View style={styles.root}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          // Tab bar hidden — navigation lives in the SideDrawer
+          tabBarStyle: { display: 'none' },
+        }}
+      >
+        <Tabs.Screen name="index"        options={{ title: 'Explore'   }} />
+        <Tabs.Screen name="opportunities" options={{ title: 'Serve'     }} />
+        <Tabs.Screen name="events"       options={{ title: 'Events'    }} />
+        <Tabs.Screen name="testimonies"  options={{ title: 'Stories'   }} />
+        <Tabs.Screen name="profile"      options={{ title: 'Profile'   }} />
+        <Tabs.Screen name="resources"    options={{ href: null         }} />
+      </Tabs>
+
+      {/* Drawer lives here so it overlays all tab screens */}
+      <SideDrawer />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});

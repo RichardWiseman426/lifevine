@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   ActivityIndicator,
@@ -10,16 +9,14 @@ import { router } from 'expo-router';
 import { useUpcomingEvents } from '../../src/hooks/useEvents';
 import { EventCard } from '../../src/components/EventCard';
 import { EmptyState } from '../../src/components/EmptyState';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
 
 export default function EventsScreen() {
   const { occurrences, loading } = useUpcomingEvents();
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.heading}>Events</Text>
-        <Text style={styles.sub}>Upcoming services, gatherings &amp; more</Text>
-      </View>
+      <ScreenHeader title="Events" subtitle="Upcoming services, gatherings & more" />
 
       {loading ? (
         <View style={styles.centered}>
@@ -50,15 +47,6 @@ export default function EventsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F0E8' },
-  header: { paddingHorizontal: 22, paddingTop: 14, paddingBottom: 20 },
-  heading: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#1C1917',
-    letterSpacing: -0.5,
-    marginBottom: 4,
-  },
-  sub: { fontSize: 14, color: '#78716C', lineHeight: 20 },
   list: { paddingTop: 4, paddingBottom: 40 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LifeVine — Brand Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #1B5E20;
+    color: #fff;
+    padding: 48px 32px;
+    min-height: 100vh;
+  }
+  h1 { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: #A5D6A7; text-transform: uppercase; margin-bottom: 8px; }
+  h2 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  .page-sub { font-size: 15px; color: #A5D6A7; margin-bottom: 56px; }
+  .section { margin-bottom: 64px; }
+  .section-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    color: #81C784; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-title { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 24px; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .card-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    color: #78716C; text-transform: uppercase;
+  }
+  .card-desc {
+    font-size: 13px; color: #78716C; text-align: center; line-height: 1.6;
+  }
+  .card-note {
+    font-size: 11px; color: #A8A29E; text-align: center;
+    font-style: italic;
+  }
+  .dark-card {
+    background: #1B5E20;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .dark-card .card-label { color: #81C784; }
+  .dark-card .card-desc { color: #A5D6A7; }
+  .dark-card .card-note { color: #66BB6A; }
+  .variant-number {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #F5F0E8; color: #2E7D32;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .icon-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+</style>
+</head>
+<body>
+
+<h1>LifeVine</h1>
+<h2>Brand Identity Options</h2>
+<p class="page-sub">Three direction options for each brand element. Review and choose one per section.</p>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 1: PRIMARY LOGO                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Section 01</div>
+  <div class="section-title">Primary Logo — Choose One</div>
+  <div class="cards">
+
+    <!-- V1: Minimal Outline -->
+    <div class="card">
+      <div class="variant-number">1</div>
+      <svg width="220" height="80" viewBox="0 0 220 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Heart outline -->
+        <path d="M 40 62 C 40 62 12 46 12 28 C 12 17 21 9 31 9 C 36 9 40 13 40 13 C 40 13 44 9 49 9 C 59 9 68 17 68 28 C 68 46 40 62 40 62 Z"
+          stroke="#2E7D32" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+        <!-- Cross (thin lines) -->
+        <line x1="40" y1="17" x2="40" y2="47" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="29" y1="30" x2="51" y2="30" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Small leaf at top -->
+        <path d="M 40 9 C 44 13, 45 20, 40 24 C 35 20, 36 13, 40 9 Z" fill="#4CAF50" opacity="0.8"/>
+        <!-- Wordmark -->
+        <text x="82" y="34" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="26" font-weight="800" fill="#1B5E20" letter-spacing="-1">Life</text>
+        <text x="126" y="34" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="26" font-weight="800" fill="#4CAF50" letter-spacing="-1">Vine</text>
+        <text x="82" y="52" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="11" font-weight="500" fill="#78716C" letter-spacing="2">CONNECT · SERVE · BELONG</text>
+      </svg>
+      <div class="card-label">Option 1 — Minimal Outline</div>
+      <div class="card-desc">Clean outline heart with integrated cross and leaf accent. Simple, trustworthy, works at all sizes.</div>
+      <div class="card-note">"Life" in deep green, "Vine" in fresh green</div>
+    </div>
+
+    <!-- V2: Filled Modern -->
+    <div class="card">
+      <div class="variant-number">2</div>
+      <svg width="220" height="80" viewBox="0 0 220 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2E7D32"/>
+            <stop offset="100%" stop-color="#4CAF50"/>
+          </linearGradient>
+        </defs>
+        <!-- Filled heart -->
+        <path d="M 40 65 C 40 65 8 46 8 25 C 8 13 18 5 30 5 C 36 5 40 10 40 10 C 40 10 44 5 50 5 C 62 5 72 13 72 25 C 72 46 40 65 40 65 Z"
+          fill="url(#heartGrad)"/>
+        <!-- White cross inside -->
+        <rect x="37.5" y="15" width="5" height="30" rx="2.5" fill="white" opacity="0.9"/>
+        <rect x="26" y="27" width="28" height="5" rx="2.5" fill="white" opacity="0.9"/>
+        <!-- White leaf tip -->
+        <path d="M 40 5 C 44 9, 45 16, 40 20 C 35 16, 36 9, 40 5 Z" fill="white" opacity="0.6"/>
+        <!-- Wordmark -->
+        <text x="86" y="32" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="24" font-weight="800" fill="#1B5E20" letter-spacing="-0.8">LifeVine</text>
+        <text x="86" y="52" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="12" font-weight="600" fill="#4CAF50" letter-spacing="0.5">Connect. Serve. Belong.</text>
+      </svg>
+      <div class="card-label">Option 2 — Filled Modern</div>
+      <div class="card-desc">Gradient-filled heart with white cross details. Vibrant and modern. Works great as an app icon companion.</div>
+      <div class="card-note">Gradient from deep forest to fresh green</div>
+    </div>
+
+    <!-- V3: Emblem Badge -->
+    <div class="card">
+      <div class="variant-number">3</div>
+      <svg width="220" height="80" viewBox="0 0 220 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Circle emblem -->
+        <circle cx="40" cy="40" r="34" stroke="#2E7D32" stroke-width="2"/>
+        <circle cx="40" cy="40" r="28" stroke="#A5D6A7" stroke-width="1" stroke-dasharray="3 4"/>
+        <!-- Heart inside circle -->
+        <path d="M 40 54 C 40 54 22 44 22 31 C 22 23 28 18 35 18 C 38 18 40 21 40 21 C 40 21 42 18 45 18 C 52 18 58 23 58 31 C 58 44 40 54 40 54 Z"
+          fill="#2E7D32"/>
+        <!-- White cross -->
+        <rect x="38" y="23" width="4" height="22" rx="2" fill="white" opacity="0.85"/>
+        <rect x="30" y="31" width="20" height="4" rx="2" fill="white" opacity="0.85"/>
+        <!-- Wordmark -->
+        <text x="86" y="36" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="22" font-weight="800" fill="#1B5E20" letter-spacing="-0.5">LifeVine</text>
+        <text x="86" y="56" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="11" font-weight="500" fill="#A8A29E" letter-spacing="1.5">COMMUNITY · FAITH · ACTION</text>
+      </svg>
+      <div class="card-label">Option 3 — Circle Emblem</div>
+      <div class="card-desc">Classic emblem style with double ring and centered heart. Authoritative and timeless. Works well for official contexts.</div>
+      <div class="card-note">Double ring with dashed inner circle</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 2: APP ICON                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Section 02</div>
+  <div class="section-title">App Icon — Choose One</div>
+  <div class="icon-grid">
+
+    <!-- Icon V1 -->
+    <div class="icon-card">
+      <div class="variant-number">1</div>
+      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="iconGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#388E3C"/>
+            <stop offset="100%" stop-color="#1B5E20"/>
+          </linearGradient>
+          <clipPath id="roundRect1">
+            <rect width="120" height="120" rx="28"/>
+          </clipPath>
+        </defs>
+        <rect width="120" height="120" rx="28" fill="url(#iconGrad1)"/>
+        <!-- Heart -->
+        <path d="M 60 94 C 60 94 20 70 20 42 C 20 27 31 17 45 17 C 52 17 58 22 60 24 C 62 22 68 17 75 17 C 89 17 100 27 100 42 C 100 70 60 94 60 94 Z"
+          fill="white"/>
+        <!-- Cross cutout effect (darker green) -->
+        <rect x="56" y="28" width="8" height="44" rx="4" fill="#2E7D32"/>
+        <rect x="38" y="44" width="44" height="8" rx="4" fill="#2E7D32"/>
+        <!-- Small leaf at top of heart -->
+        <path d="M 60 17 C 65 22, 67 30, 60 36 C 53 30, 55 22, 60 17 Z" fill="#81C784"/>
+      </svg>
+      <div class="card-label">Option 1</div>
+      <div class="card-desc">White heart on deep gradient. Cross formed inside. Leaf accent at top.</div>
+    </div>
+
+    <!-- Icon V2 -->
+    <div class="icon-card">
+      <div class="variant-number">2</div>
+      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="iconGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1B5E20"/>
+            <stop offset="100%" stop-color="#2E7D32"/>
+          </linearGradient>
+        </defs>
+        <rect width="120" height="120" rx="28" fill="url(#iconGrad2)"/>
+        <!-- Organic cross with vine feel -->
+        <!-- Vertical stem -->
+        <rect x="55" y="20" width="10" height="80" rx="5" fill="#4CAF50"/>
+        <!-- Horizontal arm -->
+        <rect x="28" y="45" width="64" height="10" rx="5" fill="#4CAF50"/>
+        <!-- Leaves on cross -->
+        <path d="M 60 20 C 66 26, 68 36, 60 44 C 52 36, 54 26, 60 20 Z" fill="#A5D6A7"/>
+        <path d="M 28 50 C 34 44, 44 42, 44 50 C 44 58, 34 56, 28 50 Z" fill="#A5D6A7" opacity="0.8"/>
+        <path d="M 92 50 C 86 44, 76 42, 76 50 C 76 58, 86 56, 92 50 Z" fill="#A5D6A7" opacity="0.8"/>
+        <!-- Small heart at center intersection -->
+        <path d="M 60 52 C 60 52 53 47 53 43 C 53 40 56 38 59 38 C 60 38 60 39 60 39 C 60 39 60 38 61 38 C 64 38 67 40 67 43 C 67 47 60 52 60 52 Z"
+          fill="white" opacity="0.9"/>
+      </svg>
+      <div class="card-label">Option 2</div>
+      <div class="card-desc">Organic vine cross with leaf accents and centered heart. Nature-forward, symbolic.</div>
+    </div>
+
+    <!-- Icon V3 -->
+    <div class="icon-card">
+      <div class="variant-number">3</div>
+      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="iconGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#2E7D32"/>
+            <stop offset="100%" stop-color="#1A4A1D"/>
+          </linearGradient>
+        </defs>
+        <rect width="120" height="120" rx="28" fill="url(#iconGrad3)"/>
+        <!-- Stylized LV monogram -->
+        <!-- L - vertical bar -->
+        <rect x="26" y="30" width="10" height="60" rx="5" fill="#A5D6A7"/>
+        <!-- L - horizontal foot -->
+        <rect x="26" y="80" width="36" height="10" rx="5" fill="#A5D6A7"/>
+        <!-- V - left leg -->
+        <path d="M 58 30 L 70 85 L 76 85 L 64 30 Z" fill="#A5D6A7" rx="4"/>
+        <!-- V - right leg -->
+        <path d="M 94 30 L 82 85 L 76 85 L 88 30 Z" fill="#A5D6A7"/>
+        <!-- Leaf on top of V peak -->
+        <path d="M 76 30 C 80 22, 84 16, 76 10 C 68 16, 72 22, 76 30 Z" fill="#4CAF50"/>
+        <path d="M 76 10 C 79 14, 80 20, 76 26 C 72 20, 73 14, 76 10 Z" fill="#81C784" opacity="0.7"/>
+      </svg>
+      <div class="card-label">Option 3</div>
+      <div class="card-desc">LV monogram with organic vine leaf. Clean typographic approach. Minimal, premium feel.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 3: MONOGRAM                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Section 03</div>
+  <div class="section-title">Monogram (LV Mark) — Choose One</div>
+  <div class="cards">
+
+    <!-- Monogram V1: Joined LV -->
+    <div class="card">
+      <div class="variant-number">1</div>
+      <svg width="160" height="100" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- L -->
+        <rect x="20" y="15" width="11" height="60" rx="5.5" fill="#2E7D32"/>
+        <rect x="20" y="64" width="38" height="11" rx="5.5" fill="#2E7D32"/>
+        <!-- V - shares the right side of L's foot -->
+        <path d="M 52 15 L 78 75 L 86 75 L 112 15 L 101 15 L 82 61 L 63 15 Z" fill="#2E7D32" rx="5"/>
+        <!-- Vine connector between L and V (decorative curve) -->
+        <path d="M 58 15 Q 50 5, 42 12" stroke="#4CAF50" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Leaf at the vine end -->
+        <path d="M 42 12 C 38 6, 32 6, 35 14 C 39 12, 42 12, 42 12 Z" fill="#4CAF50"/>
+      </svg>
+      <div class="card-label">Option 1 — Joined with Vine</div>
+      <div class="card-desc">L and V share a base connection with a vine curl and leaf linking them. Subtle, organic, letterform-focused.</div>
+    </div>
+
+    <!-- Monogram V2: Overlapping -->
+    <div class="card">
+      <div class="variant-number">2</div>
+      <svg width="160" height="100" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shadow/depth version of L -->
+        <rect x="26" y="18" width="12" height="64" rx="6" fill="#A5D6A7"/>
+        <rect x="26" y="70" width="44" height="12" rx="6" fill="#A5D6A7"/>
+        <!-- V overlapping -->
+        <path d="M 54 18 L 84 82 L 94 82 L 124 18 L 112 18 L 89 72 L 66 18 Z" fill="#2E7D32"/>
+        <!-- Overlap highlight -->
+        <rect x="54" y="18" width="12" height="36" rx="6" fill="#4CAF50"/>
+        <!-- Small leaves on V peak -->
+        <path d="M 89 82 C 93 92, 89 100, 89 100 C 89 100, 85 92, 89 82 Z" fill="#4CAF50"/>
+        <path d="M 89 82 C 95 88, 100 86, 98 78 C 93 80, 90 82, 89 82 Z" fill="#81C784"/>
+        <path d="M 89 82 C 83 88, 78 86, 80 78 C 85 80, 88 82, 89 82 Z" fill="#81C784"/>
+      </svg>
+      <div class="card-label">Option 2 — Layered & Overlapping</div>
+      <div class="card-desc">L in soft green behind a bold V in deep green. Depth and layering with leaf growth at base. Dynamic and modern.</div>
+    </div>
+
+    <!-- Monogram V3: Circle -->
+    <div class="card">
+      <div class="variant-number">3</div>
+      <svg width="160" height="100" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Circle background -->
+        <circle cx="80" cy="50" r="44" fill="#2E7D32"/>
+        <circle cx="80" cy="50" r="40" stroke="#4CAF50" stroke-width="1" stroke-opacity="0.4" fill="none"/>
+        <!-- L -->
+        <rect x="34" y="24" width="9" height="52" rx="4.5" fill="white"/>
+        <rect x="34" y="67" width="30" height="9" rx="4.5" fill="white"/>
+        <!-- V -->
+        <path d="M 60 24 L 82 76 L 90 76 L 112 24 L 103 24 L 86 66 L 69 24 Z" fill="white"/>
+        <!-- Small vine accent inside circle bottom -->
+        <path d="M 56 82 Q 64 90, 80 88 Q 96 90, 104 82"
+          stroke="#A5D6A7" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+      </svg>
+      <div class="card-label">Option 3 — Circle Badge</div>
+      <div class="card-desc">LV centered inside a green circle badge with subtle vine accent at base. Compact, versatile, great for profile images and loading states.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 4: DARK MODE PREVIEW                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Section 04</div>
+  <div class="section-title">Dark Mode — Logo V2 on Dark Background</div>
+  <div class="cards">
+    <div class="card dark-card">
+      <svg width="220" height="70" viewBox="0 0 220 70" fill="none">
+        <defs>
+          <linearGradient id="darkHeart" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4CAF50"/>
+            <stop offset="100%" stop-color="#81C784"/>
+          </linearGradient>
+        </defs>
+        <path d="M 35 60 C 35 60 8 44 8 24 C 8 13 17 6 28 6 C 33 6 35 10 35 10 C 35 10 37 6 42 6 C 53 6 62 13 62 24 C 62 44 35 60 35 60 Z"
+          fill="url(#darkHeart)"/>
+        <rect x="32.5" y="14" width="5" height="28" rx="2.5" fill="#1B5E20"/>
+        <rect x="22" y="24" width="26" height="5" rx="2.5" fill="#1B5E20"/>
+        <path d="M 35 6 C 39 10, 40 17, 35 21 C 30 17, 31 10, 35 6 Z" fill="white" opacity="0.7"/>
+        <text x="76" y="30" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="24" font-weight="800" fill="white" letter-spacing="-0.8">LifeVine</text>
+        <text x="76" y="50" font-family="-apple-system, 'Helvetica Neue', sans-serif"
+          font-size="12" font-weight="500" fill="#81C784" letter-spacing="0.3">Connect. Serve. Belong.</text>
+      </svg>
+      <div class="card-label">Dark Mode Variant</div>
+      <div class="card-desc">Bright gradient heart on deep green background. Logo elements brighten for contrast. Maintains warmth in dark contexts.</div>
+    </div>
+
+    <div class="card dark-card">
+      <svg width="60" height="60" viewBox="0 0 120 120" fill="none">
+        <defs>
+          <linearGradient id="dmIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4CAF50"/>
+            <stop offset="100%" stop-color="#81C784"/>
+          </linearGradient>
+        </defs>
+        <rect width="120" height="120" rx="28" fill="#2D4A30"/>
+        <path d="M 60 94 C 60 94 20 70 20 42 C 20 27 31 17 45 17 C 52 17 58 22 60 24 C 62 22 68 17 75 17 C 89 17 100 27 100 42 C 100 70 60 94 60 94 Z"
+          fill="url(#dmIcon)"/>
+        <rect x="56" y="28" width="8" height="44" rx="4" fill="#1B5E20"/>
+        <rect x="38" y="44" width="44" height="8" rx="4" fill="#1B5E20"/>
+        <path d="M 60 17 C 65 22, 67 30, 60 36 C 53 30, 55 22, 60 17 Z" fill="white" opacity="0.8"/>
+      </svg>
+      <div class="card-label">Icon — Dark Mode</div>
+      <div class="card-desc">App icon on dark background. Muted dark green surface, bright gradient heart. Clean and recognizable.</div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center; color:#81C784; font-size:13px; margin-top:32px; padding-top:32px; border-top:1px solid rgba(255,255,255,0.1);">
+  Reply with your choices: e.g. "Logo: 2, Icon: 1, Monogram: 3" and we'll implement your selections across the app.
+</div>
+
+</body>
+</html>

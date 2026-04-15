@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, FlatList, StyleSheet,
   ActivityIndicator, TouchableOpacity, ScrollView,
+  Dimensions, NativeSyntheticEvent, NativeScrollEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useOrganizations } from '../../src/hooks/useOrganizations';
 import { supabase } from '../../src/lib/supabase';
 import { useAuthStore } from '../../src/store/auth';
+import { useDrawerStore } from '../../src/store/drawer';
 import { OrgCard } from '../../src/components/OrgCard';
 import { EmptyState } from '../../src/components/EmptyState';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const CATEGORIES = [
   { label: 'All',       value: '' },
@@ -28,47 +32,82 @@ function greeting() {
   return 'Good evening';
 }
 
-function FeaturedCard({ org, onPress }: { org: any; onPress: () => void }) {
-  const initials = org.name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase();
+// ── Featured Carousel Card ──────────────────────────────────────
+function FeaturedCard({ org }: { org: any }) {
+  const initials = org.name
+    .split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase();
   const location = [org.city, org.state].filter(Boolean).join(', ');
 
   return (
-    <TouchableOpacity style={featStyles.card} onPress={onPress} activeOpacity={0.82}>
-      {/* Color bar */}
-      <View style={featStyles.bar} />
+    <TouchableOpacity
+      style={featStyles.card}
+      onPress={() => router.push(`/org/${org.id}`)}
+      activeOpacity={0.88}
+    >
+      {/* Top accent bar */}
+      <View style={featStyles.topBar} />
 
       <View style={featStyles.body}>
-        {/* Avatar + verified */}
-        <View style={featStyles.topRow}>
+        {/* Avatar row */}
+        <View style={featStyles.avatarRow}>
           <View style={featStyles.avatar}>
             <Text style={featStyles.avatarText}>{initials}</Text>
           </View>
-          {org.is_verified && (
-            <View style={featStyles.verifiedBadge}>
-              <Text style={featStyles.verifiedText}>✓ Verified</Text>
+          <View style={featStyles.badgeRow}>
+            <View style={featStyles.featuredBadge}>
+              <Text style={featStyles.featuredBadgeText}>Featured</Text>
             </View>
-          )}
+            {org.is_verified && (
+              <View style={featStyles.verifiedBadge}>
+                <Text style={featStyles.verifiedBadgeText}>✓ Verified</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        <Text style={featStyles.name} numberOfLines={2}>{org.name}</Text>
+        {/* Name + description */}
+        <Text style={featStyles.name}>{org.name}</Text>
         {org.short_description ? (
-          <Text style={featStyles.desc} numberOfLines={2}>{org.short_description}</Text>
+          <Text style={featStyles.desc} numberOfLines={3}>
+            {org.short_description}
+          </Text>
         ) : null}
 
+        {/* Footer */}
         <View style={featStyles.footer}>
-          {location ? <Text style={featStyles.meta}>📍 {location}</Text> : null}
-          <Text style={featStyles.cta}>Learn more →</Text>
+          {location ? (
+            <Text style={featStyles.location}>📍 {location}</Text>
+          ) : null}
+          <Text style={featStyles.cta}>Explore →</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 }
 
+// ── Carousel dots ───────────────────────────────────────────────
+function CarouselDots({ count, active }: { count: number; active: number }) {
+  if (count <= 1) return null;
+  return (
+    <View style={dotStyles.row}>
+      {Array.from({ length: count }).map((_, i) => (
+        <View
+          key={i}
+          style={[dotStyles.dot, i === active && dotStyles.dotActive]}
+        />
+      ))}
+    </View>
+  );
+}
+
+// ── Main Screen ─────────────────────────────────────────────────
 export default function ExploreScreen() {
   const { profile } = useAuthStore();
-  const [search, setSearch]       = useState('');
-  const [category, setCategory]   = useState('');
-  const [featured, setFeatured]   = useState<any[]>([]);
+  const { open } = useDrawerStore();
+  const [search, setSearch]         = useState('');
+  const [category, setCategory]     = useState('');
+  const [featured, setFeatured]     = useState<any[]>([]);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const { orgs, loading } = useOrganizations(search, category);
 
   useEffect(() => {
@@ -78,57 +117,69 @@ export default function ExploreScreen() {
       .eq('is_featured', true)
       .eq('is_active', true)
       .is('deleted_at', null)
-      .limit(6)
+      .limit(8)
       .then(({ data }) => setFeatured(data ?? []));
   }, []);
+
+  function handleCarouselScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
+    const x = e.nativeEvent.contentOffset.x;
+    setCarouselIndex(Math.round(x / SCREEN_WIDTH));
+  }
 
   const firstName = profile?.display_name?.split(' ')[0] ?? null;
 
   const ListHeader = (
     <View>
-      {/* ── Hero ──────────────────────────────── */}
-      <View style={styles.hero}>
-        <Text style={styles.heroGreeting}>{greeting()}{firstName ? `, ${firstName}` : ''}.</Text>
-        <Text style={styles.heroTagline}>Connect.{'\n'}Serve. Belong.</Text>
-        <Text style={styles.heroSub}>
-          Discover organizations, events, and ways to make a difference near you.
-        </Text>
+      {/* ── Top bar: greeting + hamburger ── */}
+      <View style={styles.topBar}>
+        <View>
+          <Text style={styles.greetingText}>
+            {greeting()}{firstName ? `, ${firstName}` : ''}.
+          </Text>
+          <Text style={styles.topBarSub}>What's happening near you</Text>
+        </View>
+        <TouchableOpacity
+          onPress={open}
+          style={styles.hamburgerBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <View style={styles.hamLine} />
+          <View style={[styles.hamLine, { width: 13 }]} />
+          <View style={styles.hamLine} />
+        </TouchableOpacity>
       </View>
 
-      {/* ── Featured ──────────────────────────── */}
+      {/* ── Featured carousel ── */}
       {featured.length > 0 && (
-        <View style={styles.featuredSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>FEATURED NEAR YOU</Text>
-            <View style={styles.featuredPill}>
-              <Text style={styles.featuredPillText}>Sponsored</Text>
-            </View>
-          </View>
-          <ScrollView
+        <View style={styles.carouselSection}>
+          <Text style={styles.carouselLabel}>FEATURED CONTRIBUTORS</Text>
+          <FlatList
+            data={featured}
+            keyExtractor={(o) => o.id}
             horizontal
+            pagingEnabled
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.featuredScroll}
-          >
-            {featured.map((org) => (
-              <FeaturedCard
-                key={org.id}
-                org={org}
-                onPress={() => router.push(`/org/${org.id}`)}
-              />
-            ))}
-          </ScrollView>
+            onMomentumScrollEnd={handleCarouselScroll}
+            renderItem={({ item }) => (
+              <View style={{ width: SCREEN_WIDTH }}>
+                <FeaturedCard org={item} />
+              </View>
+            )}
+            scrollEventThrottle={16}
+          />
+          <CarouselDots count={featured.length} active={carouselIndex} />
         </View>
       )}
 
-      {/* ── Explore header ────────────────────── */}
-      <View style={styles.exploreHeader}>
-        <Text style={styles.exploreTitle}>Organizations</Text>
-        <Text style={styles.exploreSub}>Find people doing good near you</Text>
+      {/* ── Organizations header ── */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Organizations</Text>
+        <Text style={styles.sectionSub}>Find people doing good near you</Text>
       </View>
 
       {/* Search */}
       <View style={styles.searchWrap}>
-        <View style={styles.searchInner}>
+        <View style={styles.searchRow}>
           <Text style={styles.searchIcon}>🔍</Text>
           <TextInput
             style={styles.searchInput}
@@ -142,7 +193,7 @@ export default function ExploreScreen() {
         </View>
       </View>
 
-      {/* Filter chips */}
+      {/* Category chips */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -151,10 +202,10 @@ export default function ExploreScreen() {
         {CATEGORIES.map((c) => (
           <TouchableOpacity
             key={c.value}
-            style={[styles.filterChip, category === c.value && styles.filterChipActive]}
+            style={[styles.chip, category === c.value && styles.chipActive]}
             onPress={() => setCategory(c.value)}
           >
-            <Text style={[styles.filterText, category === c.value && styles.filterTextActive]}>
+            <Text style={[styles.chipText, category === c.value && styles.chipTextActive]}>
               {c.label}
             </Text>
           </TouchableOpacity>
@@ -165,11 +216,11 @@ export default function ExploreScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      {loading && search === '' && category === '' ? (
+      {loading && !search && !category ? (
         <>
           {ListHeader}
           <View style={styles.centered}>
-            <ActivityIndicator color="#2D6A4F" size="large" />
+            <ActivityIndicator color="#2E7D32" size="large" />
           </View>
         </>
       ) : (
@@ -197,144 +248,171 @@ export default function ExploreScreen() {
   );
 }
 
-// ── Featured card styles ──────────────────────────────
+// ── Featured card styles ─────────────────────────────────────────
 const featStyles = StyleSheet.create({
   card: {
-    width: 240,
+    marginHorizontal: 20,
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    marginRight: 12,
+    borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: '#1C1917',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
     borderWidth: 1,
     borderColor: '#E5DDD4',
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.09,
+    shadowRadius: 16,
+    elevation: 4,
   },
-  bar: {
-    height: 4,
-    backgroundColor: '#2D6A4F',
-    width: '100%',
-  },
-  body: { padding: 16 },
-  topRow: {
+  topBar: { height: 5, backgroundColor: '#2E7D32' },
+  body: { padding: 20 },
+  avatarRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   avatar: {
-    width: 44, height: 44, borderRadius: 12,
-    backgroundColor: '#E2F0E8',
-    alignItems: 'center', justifyContent: 'center',
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    backgroundColor: '#E8F5E9',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  avatarText: { color: '#2D6A4F', fontWeight: '800', fontSize: 15 },
+  avatarText: { color: '#2E7D32', fontWeight: '800', fontSize: 18 },
+  badgeRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  featuredBadge: {
+    backgroundColor: '#FDF3E3',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#F0D9B8',
+  },
+  featuredBadgeText: { fontSize: 11, fontWeight: '700', color: '#B8864E' },
   verifiedBadge: {
-    backgroundColor: '#E2F0E8',
+    backgroundColor: '#E8F5E9',
     borderRadius: 999,
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
   },
-  verifiedText: { fontSize: 11, color: '#2D6A4F', fontWeight: '700' },
+  verifiedBadgeText: { fontSize: 11, fontWeight: '700', color: '#2E7D32' },
   name: {
-    fontSize: 15, fontWeight: '700', color: '#1C1917',
-    letterSpacing: -0.2, marginBottom: 5,
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1C1917',
+    letterSpacing: -0.4,
+    marginBottom: 8,
   },
-  desc: { fontSize: 13, color: '#78716C', lineHeight: 18, marginBottom: 12 },
+  desc: {
+    fontSize: 14,
+    color: '#78716C',
+    lineHeight: 21,
+    marginBottom: 18,
+  },
   footer: {
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#F0EBE4',
+    paddingTop: 14,
   },
-  meta: { fontSize: 12, color: '#A8A29E' },
-  cta: { fontSize: 13, color: '#2D6A4F', fontWeight: '700' },
+  location: { fontSize: 13, color: '#A8A29E' },
+  cta: { fontSize: 14, color: '#2E7D32', fontWeight: '700' },
 });
 
-// ── Screen styles ────────────────────────────────────
+// ── Dot styles ───────────────────────────────────────────────────
+const dotStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 14,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E5DDD4',
+  },
+  dotActive: {
+    backgroundColor: '#2E7D32',
+    width: 18,
+  },
+});
+
+// ── Screen styles ─────────────────────────────────────────────────
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F0E8' },
   centered: { paddingVertical: 48, alignItems: 'center' },
 
-  // Hero
-  hero: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
-  },
-  heroGreeting: {
-    fontSize: 15,
-    color: '#78716C',
-    fontWeight: '500',
-    marginBottom: 8,
-    letterSpacing: 0.1,
-  },
-  heroTagline: {
-    fontSize: 42,
-    fontWeight: '800',
-    color: '#1C1917',
-    letterSpacing: -1.5,
-    lineHeight: 48,
-    marginBottom: 14,
-  },
-  heroSub: {
-    fontSize: 15,
-    color: '#78716C',
-    lineHeight: 22,
-    maxWidth: 300,
-  },
-
-  // Featured
-  featuredSection: { marginBottom: 28 },
-  sectionHeader: {
+  // Top bar
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    marginBottom: 14,
-    gap: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 22,
+    paddingTop: 14,
+    paddingBottom: 20,
   },
-  sectionLabel: {
+  greetingText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1C1917',
+    letterSpacing: -0.3,
+  },
+  topBarSub: {
+    fontSize: 13,
+    color: '#A8A29E',
+    marginTop: 2,
+  },
+  hamburgerBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+  },
+  hamLine: {
+    width: 18,
+    height: 2,
+    borderRadius: 2,
+    backgroundColor: '#1C1917',
+  },
+
+  // Carousel
+  carouselSection: { marginBottom: 28 },
+  carouselLabel: {
     fontSize: 11,
     fontWeight: '800',
     color: '#A8A29E',
     letterSpacing: 1.4,
-  },
-  featuredPill: {
-    backgroundColor: '#FDF3E3',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: '#F0D9B8',
-  },
-  featuredPillText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#B8864E',
-    letterSpacing: 0.3,
-  },
-  featuredScroll: { paddingLeft: 24, paddingRight: 12 },
-
-  // Explore
-  exploreHeader: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 22,
     marginBottom: 14,
   },
-  exploreTitle: {
+
+  // Organizations section
+  sectionHeader: {
+    paddingHorizontal: 22,
+    marginBottom: 14,
+  },
+  sectionTitle: {
     fontSize: 22,
     fontWeight: '800',
     color: '#1C1917',
     letterSpacing: -0.4,
     marginBottom: 2,
   },
-  exploreSub: {
-    fontSize: 13,
-    color: '#A8A29E',
-  },
+  sectionSub: { fontSize: 13, color: '#A8A29E' },
 
   // Search
   searchWrap: { paddingHorizontal: 16, marginBottom: 12 },
-  searchInner: {
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
@@ -345,17 +423,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 8,
   },
-  searchIcon: { fontSize: 15 },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#1C1917',
-    padding: 0,
-  },
+  searchIcon: { fontSize: 14 },
+  searchInput: { flex: 1, fontSize: 15, color: '#1C1917', padding: 0 },
 
-  // Filter
+  // Chips
   filterRow: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },
-  filterChip: {
+  chip: {
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -363,10 +436,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5DDD4',
   },
-  filterChipActive: { backgroundColor: '#2D6A4F', borderColor: '#2D6A4F' },
-  filterText: { fontSize: 13, color: '#78716C', fontWeight: '500' },
-  filterTextActive: { color: '#fff', fontWeight: '700' },
+  chipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
+  chipText: { fontSize: 13, color: '#78716C', fontWeight: '500' },
+  chipTextActive: { color: '#fff', fontWeight: '700' },
 
-  // List
   list: { paddingBottom: 40 },
 });
