@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useIntentStore, IntentMode } from '../src/store/intent';
@@ -69,7 +69,11 @@ export default function IntentGateScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.wordmark}>LifeVine</Text>
+          <Image
+            source={require('../assets/brand/images/lv-mark.png')}
+            style={styles.logoMark}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>What do you need{'\n'}help with today?</Text>
           <Text style={styles.subtitle}>We'll take you to the right place.</Text>
         </View>
@@ -109,11 +113,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
 
   header: { marginBottom: 32 },
-  wordmark: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#2D6A4F',
-    letterSpacing: -0.8,
+  logoMark: {
+    width: 120,
+    height: 108,
     marginBottom: 18,
   },
   title: {

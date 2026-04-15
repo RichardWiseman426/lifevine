@@ -1,5 +1,5 @@
 import {
-  View, Text, TextInput, TouchableOpacity,
+  View, Text, TextInput, TouchableOpacity, Image,
   StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -37,7 +37,11 @@ export default function SignInScreen() {
       >
         {/* Hero / wordmark area */}
         <View style={styles.hero}>
-          <Text style={styles.wordmark}>LifeVine</Text>
+          <Image
+            source={require('../../assets/brand/images/lv-mark.png')}
+            style={styles.logoMark}
+            resizeMode="contain"
+          />
           <Text style={styles.tagline}>Connect. Serve. Belong.</Text>
         </View>
 
@@ -119,11 +123,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  wordmark: {
-    fontSize: 48,
-    fontWeight: '800',
-    color: '#2D6A4F',
-    letterSpacing: -1.5,
+  logoMark: {
+    width: 160,
+    height: 144,
     marginBottom: 8,
   },
   tagline: {

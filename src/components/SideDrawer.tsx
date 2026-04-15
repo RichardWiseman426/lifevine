@@ -1,5 +1,5 @@
 import {
-  View, Text, StyleSheet, TouchableOpacity, Animated,
+  View, Text, Image, StyleSheet, TouchableOpacity, Animated,
   Dimensions, TouchableWithoutFeedback,
 } from 'react-native';
 import { useRef, useEffect } from 'react';
@@ -76,9 +76,11 @@ export function SideDrawer() {
           {/* Header */}
           <View style={styles.drawerHeader}>
             <View style={styles.drawerLogoRow}>
-              <View style={styles.drawerLogoMark}>
-                <Text style={styles.drawerLogoText}>LV</Text>
-              </View>
+              <Image
+                source={require('../../assets/brand/images/app-icon.png')}
+                style={styles.drawerLogoImage}
+                resizeMode="contain"
+              />
               <View>
                 <Text style={styles.drawerAppName}>LifeVine</Text>
                 <Text style={styles.drawerTagline}>Connect. Serve. Belong.</Text>
@@ -200,19 +202,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  drawerLogoMark: {
+  drawerLogoImage: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    backgroundColor: '#2E7D32',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  drawerLogoText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: -0.5,
   },
   drawerAppName: {
     fontSize: 19,
