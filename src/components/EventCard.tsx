@@ -48,7 +48,7 @@ export function EventCard({ occurrence: o, onPress }: Props) {
           <Text style={styles.description} numberOfLines={2}>{ev.short_description}</Text>
         )}
         <View style={styles.footer}>
-          {location && <Text style={styles.meta}>📍 {location}</Text>}
+          {location && <Text style={styles.meta}>{location}</Text>}
           {o.rsvp_count > 0 && (
             <Text style={styles.meta}>{o.rsvp_count} attending</Text>
           )}

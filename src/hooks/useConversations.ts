@@ -92,6 +92,52 @@ export function useMessages(conversationId: string) {
   return { messages, loading, sendMessage, markRead, refetch: fetch };
 }
 
+export async function startOrgConversation(currentUserId: string, orgId: string): Promise<string | null> {
+  // Reuse existing context conversation for this user + org
+  const { data: existing } = await supabase
+    .from('conversation_participants')
+    .select('conversation_id, conversations!inner(id, type, org_id)')
+    .eq('user_id', currentUserId)
+    .eq('conversations.type', 'context')
+    .eq('conversations.org_id', orgId)
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    return existing[0].conversation_id;
+  }
+
+  // Find org owner or admin to pull into the thread
+  const { data: orgAdmin } = await supabase
+    .from('org_members')
+    .select('user_id')
+    .eq('org_id', orgId)
+    .eq('status', 'active')
+    .in('role', ['owner', 'admin'])
+    .order('role', { ascending: false }) // 'owner' sorts after 'admin'
+    .limit(1)
+    .single();
+
+  // Create the context conversation
+  const { data: conv, error: convErr } = await supabase
+    .from('conversations')
+    .insert({ type: 'context', org_id: orgId, created_by: currentUserId })
+    .select()
+    .single();
+
+  if (convErr || !conv) return null;
+
+  // Add participants: the user + the org admin (if different)
+  const participants: { conversation_id: string; user_id: string }[] = [
+    { conversation_id: conv.id, user_id: currentUserId },
+  ];
+  if (orgAdmin && orgAdmin.user_id !== currentUserId) {
+    participants.push({ conversation_id: conv.id, user_id: orgAdmin.user_id });
+  }
+  await supabase.from('conversation_participants').insert(participants);
+
+  return conv.id;
+}
+
 export async function startDirectConversation(currentUserId: string, otherUserId: string): Promise<string | null> {
   // Check if DM already exists between these two users
   const { data: existing } = await supabase

@@ -1,7 +1,9 @@
 import {
   View, Text, TextInput, TouchableOpacity, Image,
-  StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView,
+  StyleSheet, Alert, KeyboardAvoidingView, Platform,
+  ScrollView, StatusBar,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { supabase } from '../../src/lib/supabase';
@@ -27,137 +29,166 @@ export default function SignInScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <LinearGradient
+      colors={['#052218', '#0D4A2C', '#1A7A4A']}
+      locations={[0, 0.5, 1]}
+      style={styles.gradient}
     >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
+      <StatusBar barStyle="light-content" />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Hero / wordmark area */}
-        <View style={styles.hero}>
-          <Image
-            source={require('../../assets/brand/images/lv-mark.png')}
-            style={styles.logoMark}
-            resizeMode="contain"
-          />
-          <Text style={styles.tagline}>Connect. Serve. Belong.</Text>
-        </View>
-
-        {/* Form card */}
-        <View style={styles.formCard}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="your@email.com"
-            placeholderTextColor="#A8A29E"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="email"
-            textContentType="emailAddress"
-            returnKeyType="next"
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Your password"
-            placeholderTextColor="#A8A29E"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="current-password"
-            textContentType="password"
-            returnKeyType="done"
-            onSubmitEditing={handleSignIn}
-          />
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignIn}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkBtn}
-            onPress={() => router.push('/(auth)/forgot-password')}
-          >
-            <Text style={styles.linkText}>Forgot password?</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Divider */}
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push('/(auth)/sign-up')}
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.secondaryButtonText}>Create an Account</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {/* ── Brand ── */}
+          <View style={styles.brandBlock}>
+            <Image
+              source={require('../../assets/brand/images/app-icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.tagline}>Connect. Serve. Belong.</Text>
+          </View>
+
+          {/* ── Form card ── */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Welcome back</Text>
+
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="your@email.com"
+              placeholderTextColor="#A8A29E"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+            />
+
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Your password"
+              placeholderTextColor="#A8A29E"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="current-password"
+              textContentType="password"
+              returnKeyType="done"
+              onSubmitEditing={handleSignIn}
+            />
+
+            <TouchableOpacity
+              style={[styles.primaryBtn, loading && styles.btnDisabled]}
+              onPress={handleSignIn}
+              disabled={loading}
+              activeOpacity={0.88}
+            >
+              <Text style={styles.primaryBtnText}>
+                {loading ? 'Signing in…' : 'Sign In'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.forgotBtn}
+              onPress={() => router.push('/(auth)/forgot-password')}
+            >
+              <Text style={styles.forgotText}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ── Divider ── */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* ── Create account ── */}
+          <TouchableOpacity
+            style={styles.secondaryBtn}
+            onPress={() => router.push('/(auth)/sign-up')}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.secondaryBtnText}>Create an Account</Text>
+          </TouchableOpacity>
+
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F5F0E8' },
-  container: {
+  gradient: { flex: 1 },
+  flex: { flex: 1 },
+  scroll: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
     paddingVertical: 48,
   },
 
-  hero: {
+  // Brand
+  brandBlock: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
-  logoMark: {
-    width: 160,
-    height: 144,
-    marginBottom: 8,
+  logo: {
+    width: 100,
+    height: 100,
+    borderRadius: 22,
+    marginBottom: 12,
   },
   tagline: {
-    fontSize: 16,
-    color: '#78716C',
-    letterSpacing: 0.5,
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.70)',
+    letterSpacing: 0.8,
+    fontWeight: '500',
   },
 
-  formCard: {
+  // Card
+  card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: '#E5DDD4',
-    shadowColor: '#1C1917',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 2,
-    marginBottom: 4,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.20,
+    shadowRadius: 24,
+    elevation: 10,
+    marginBottom: 6,
   },
+  cardTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1C1917',
+    marginBottom: 22,
+    letterSpacing: -0.5,
+  },
+
   label: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#78716C',
     marginBottom: 7,
     marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E5DDD4',
-    borderRadius: 14,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
@@ -165,34 +196,42 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDFAF5',
     color: '#1C1917',
   },
-  button: {
-    backgroundColor: '#2D6A4F',
-    borderRadius: 14,
+
+  primaryBtn: {
+    backgroundColor: '#0D4A2C',
+    borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
   },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.2 },
-  linkBtn: { alignItems: 'center', marginTop: 16 },
-  linkText: { color: '#2D6A4F', fontSize: 14, fontWeight: '600' },
+  btnDisabled: { opacity: 0.55 },
+  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.2 },
 
-  divider: {
+  forgotBtn: { alignItems: 'center', marginTop: 16 },
+  forgotText: { color: '#2D6A4F', fontSize: 14, fontWeight: '600' },
+
+  // Divider
+  dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 20,
     gap: 10,
   },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#E5DDD4' },
-  dividerText: { fontSize: 13, color: '#A8A29E' },
+  dividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.20)' },
+  dividerText: { fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: '500' },
 
-  secondaryButton: {
+  // Secondary
+  secondaryBtn: {
     borderWidth: 1.5,
-    borderColor: '#2D6A4F',
-    borderRadius: 14,
+    borderColor: 'rgba(255,255,255,0.40)',
+    borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
-  secondaryButtonText: { color: '#2D6A4F', fontSize: 16, fontWeight: '700' },
+  secondaryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
 });

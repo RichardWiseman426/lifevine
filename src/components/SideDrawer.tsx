@@ -12,11 +12,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(SCREEN_WIDTH * 0.78, 320);
 
 const NAV_ITEMS = [
-  { label: 'Home',       icon: '🏠', route: '/(tabs)'               },
-  { label: 'Serve',      icon: '🤝', route: '/(tabs)/opportunities'  },
-  { label: 'Events',     icon: '📅', route: '/(tabs)/events'         },
-  { label: 'Stories',    icon: '💬', route: '/(tabs)/testimonies'    },
-  { label: 'Profile',    icon: '👤', route: '/(tabs)/profile'        },
+  { label: 'Home',          route: '/(tabs)'                },
+  { label: 'Contributors',  route: '/(tabs)/organizations'  },
+  { label: 'Serve',         route: '/(tabs)/opportunities'  },
+  { label: 'Events',        route: '/(tabs)/events'         },
+  { label: 'Community',     route: '/(tabs)/testimonies'    },
+  { label: 'Profile',       route: '/(tabs)/profile'        },
 ];
 
 export function SideDrawer() {
@@ -121,11 +122,10 @@ export function SideDrawer() {
                   onPress={() => navigate(item.route)}
                   activeOpacity={0.75}
                 >
-                  <Text style={styles.navIcon}>{item.icon}</Text>
+                  {isActive && <View style={styles.activeBar} />}
                   <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
                     {item.label}
                   </Text>
-                  {isActive && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
               );
             })}
@@ -137,25 +137,55 @@ export function SideDrawer() {
           <View style={styles.secondaryList}>
             <TouchableOpacity
               style={styles.secondaryItem}
-              onPress={() => navigate('/conversations')}
+              onPress={() => navigate('/about')}
             >
-              <Text style={styles.secondaryIcon}>💬</Text>
-              <Text style={styles.secondaryLabel}>Messages</Text>
+              <Text style={styles.secondaryLabel}>About LifeVine</Text>
             </TouchableOpacity>
 
-            {profile?.platform_role === 'super_admin' && (
+            <TouchableOpacity
+              style={styles.secondaryItem}
+              onPress={() => navigate('/contributor-apply')}
+            >
+              <Text style={styles.secondaryLabel}>Become a Contributor</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.secondaryItem}
+              onPress={() => navigate('/upgrade')}
+            >
+              <Text style={styles.secondaryLabel}>Upgrade Plan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.secondaryItem, styles.supportItem]}
+              onPress={() => navigate('/support')}
+            >
+              <Text style={[styles.secondaryLabel, styles.supportLabel]}>Support Us</Text>
+            </TouchableOpacity>
+
+            {(profile?.platform_role === 'super_admin' || profile?.platform_role === 'moderator') && (
               <TouchableOpacity
                 style={styles.secondaryItem}
                 onPress={() => navigate('/admin')}
               >
-                <Text style={styles.secondaryIcon}>🛡️</Text>
-                <Text style={styles.secondaryLabel}>Moderation</Text>
+                <Text style={styles.secondaryLabel}>Admin Dashboard</Text>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Footer / sign out */}
           <View style={styles.drawerFooter}>
+            <TouchableOpacity
+              style={styles.emergencyLink}
+              onPress={() => navigate('/emergency')}
+              activeOpacity={0.6}
+            >
+              <Text style={styles.emergencyText}>
+                Someone needs help right now?{' '}
+                <Text style={styles.emergencyUnderline}>Find resources.</Text>
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
               <Text style={styles.signOutText}>Sign Out</Text>
             </TouchableOpacity>
@@ -254,19 +284,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 13,
     borderRadius: 12,
-    gap: 12,
-    position: 'relative',
+    gap: 10,
   },
   navItemActive: { backgroundColor: '#E8F5E9' },
-  navIcon: { fontSize: 19, width: 24, textAlign: 'center' },
-  navLabel: { fontSize: 15, fontWeight: '600', color: '#78716C', flex: 1 },
-  navLabelActive: { color: '#2E7D32', fontWeight: '700' },
-  activeIndicator: {
-    width: 5,
-    height: 5,
-    borderRadius: 999,
+  activeBar: {
+    width: 3,
+    height: 18,
+    borderRadius: 2,
     backgroundColor: '#2E7D32',
   },
+  navLabel: { fontSize: 15, fontWeight: '600', color: '#78716C', flex: 1 },
+  navLabelActive: { color: '#2E7D32', fontWeight: '700' },
 
   // Secondary
   secondaryList: { paddingHorizontal: 12, gap: 2 },
@@ -276,10 +304,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 11,
     borderRadius: 12,
-    gap: 12,
   },
-  secondaryIcon: { fontSize: 17, width: 24, textAlign: 'center' },
   secondaryLabel: { fontSize: 14, color: '#78716C', fontWeight: '500' },
+  supportItem: { backgroundColor: '#FFFBEB', marginTop: 6 },
+  supportLabel: { color: '#B8864E', fontWeight: '700' },
 
   // Footer
   drawerFooter: {
@@ -288,6 +316,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingBottom: 8,
   },
+  emergencyLink: {
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+  },
+  emergencyText: {
+    fontSize: 12,
+    color: '#B0A89E',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  emergencyUnderline: {
+    color: '#A8A29E',
+    textDecorationLine: 'underline',
+  },
+
   signOutBtn: {
     paddingVertical: 14,
     alignItems: 'center',

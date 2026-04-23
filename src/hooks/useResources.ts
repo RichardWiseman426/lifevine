@@ -15,7 +15,7 @@ export function useResources(category: string = '') {
       .order('is_crisis', { ascending: false })
       .order('created_at', { ascending: false });
 
-    if (category) query = query.eq('category', category);
+    if (category) query = query.eq('category', category as import('../types/database').ResourceCategory);
 
     const { data } = await query;
     setResources(data ?? []);

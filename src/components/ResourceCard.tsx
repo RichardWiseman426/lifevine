@@ -33,7 +33,7 @@ export function ResourceCard({ resource: r, onPress }: Props) {
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       {r.is_crisis && (
         <View style={styles.crisisBanner}>
-          <Text style={styles.crisisBannerText}>🚨 Crisis Resource</Text>
+          <Text style={styles.crisisBannerText}>Crisis Resource</Text>
         </View>
       )}
       <View style={styles.body}>
@@ -43,7 +43,7 @@ export function ResourceCard({ resource: r, onPress }: Props) {
               {CATEGORY_LABELS[r.category] ?? r.category}
             </Text>
           </View>
-          {location ? <Text style={styles.location}>📍 {location}</Text> : null}
+          {location ? <Text style={styles.location}>{location}</Text> : null}
         </View>
         <Text style={styles.title} numberOfLines={2}>{r.title}</Text>
         {r.description ? (
@@ -54,9 +54,9 @@ export function ResourceCard({ resource: r, onPress }: Props) {
             <Text style={styles.org}>{r.organizations.name}</Text>
           )}
           <View style={styles.contactIcons}>
-            {r.phone && <Text style={styles.contactIcon}>📞</Text>}
-            {r.email && <Text style={styles.contactIcon}>✉️</Text>}
-            {r.website_url && <Text style={styles.contactIcon}>🌐</Text>}
+            {r.phone && <View style={styles.contactChip}><Text style={styles.contactChipText}>Call</Text></View>}
+            {r.email && <View style={styles.contactChip}><Text style={styles.contactChipText}>Email</Text></View>}
+            {r.website_url && <View style={styles.contactChip}><Text style={styles.contactChipText}>Web</Text></View>}
           </View>
         </View>
       </View>
@@ -93,5 +93,13 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   org: { fontSize: 12, color: '#888', flex: 1 },
   contactIcons: { flexDirection: 'row', gap: 6 },
-  contactIcon: { fontSize: 14 },
+  contactChip: {
+    backgroundColor: '#F5F0E8',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+  },
+  contactChipText: { fontSize: 11, fontWeight: '700', color: '#57534E' },
 });

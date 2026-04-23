@@ -11,13 +11,6 @@ const OPTIONS: {
   route: string;
 }[] = [
   {
-    mode: 'help_now',
-    label: 'I need help now',
-    sub: 'Emergency services and immediate assistance',
-    icon: '🆘',
-    route: '/emergency',
-  },
-  {
     mode: 'support',
     label: 'I need support',
     sub: 'Counseling, community, and ongoing care',
@@ -45,15 +38,8 @@ export default function IntentGateScreen() {
 
   function handleSelect(option: typeof OPTIONS[number]) {
     setMode(option.mode);
-    // Emergency screen uses push so back arrow returns here;
-    // all other routes replace (clear the gate from history).
-    if (option.mode === 'help_now') {
-      setNeedsGate(false);
-      router.push(option.route as any);
-    } else {
-      setNeedsGate(false);
-      router.replace(option.route as any);
-    }
+    setNeedsGate(false);
+    router.replace(option.route as any);
   }
 
   function handleSkip() {

@@ -1,14 +1,22 @@
 import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, ErrorBoundaryProps } from 'expo-router';
 import { supabase } from '../src/lib/supabase';
 import { useAuthStore } from '../src/store/auth';
 import { useSettingsStore } from '../src/store/settings';
-import { useIntentStore } from '../src/store/intent';
+import { initSentry, Sentry } from '../src/lib/sentry';
+import { ErrorFallback } from '../src/components/ErrorBoundary';
 
-export default function RootLayout() {
+// Initialise Sentry as early as possible — before any component renders
+initSentry();
+
+// Expo Router uses this export to wrap the entire app in an error boundary.
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return <ErrorFallback error={error} onRetry={retry} />;
+}
+
+function RootLayout() {
   const { setSession, setProfile, session, isLoading } = useAuthStore();
-  const { skipIntentGate, loaded: settingsLoaded, loadSettings } = useSettingsStore();
-  const { needsGate, setNeedsGate } = useIntentStore();
+  const { hasSeenWelcome, loaded: settingsLoaded, loadSettings } = useSettingsStore();
   const router = useRouter();
   const segments = useSegments();
 
@@ -30,11 +38,8 @@ export default function RootLayout() {
         setSession(session);
         if (session?.user) {
           fetchProfile(session.user.id);
-          // Mark that we need the intent gate on fresh sign-in
-          if (event === 'SIGNED_IN') setNeedsGate(true);
         } else {
           setProfile(null);
-          setNeedsGate(false);
         }
       }
     );
@@ -46,30 +51,30 @@ export default function RootLayout() {
   useEffect(() => {
     if (isLoading || !settingsLoaded) return;
 
-    const inAuthGroup    = segments[0] === '(auth)';
-    const onIntentGate   = segments[0] === 'intent-gate';
-    const onConversation = segments[0] === 'conversation';
+    const inAuthGroup = segments[0] === '(auth)';
+    const onWelcome   = segments[0] === 'welcome';
 
+    // Not signed in → always go to sign-in
     if (!session && !inAuthGroup) {
       router.replace('/(auth)/sign-in');
       return;
     }
 
+    // Just signed in / signed up through auth screens
     if (session && inAuthGroup) {
-      // Fresh login: decide whether to show intent gate
-      if (needsGate && !skipIntentGate) {
-        router.replace('/intent-gate');
+      if (!hasSeenWelcome) {
+        router.replace('/welcome');
       } else {
         router.replace('/(tabs)');
       }
       return;
     }
 
-    // After restoring a session (app reopen, not fresh login): go straight to tabs
-    if (session && !inAuthGroup && !onIntentGate && !onConversation && segments.length === 0) {
+    // Session restored on app reopen (segments is empty) — go straight to tabs
+    if (session && !inAuthGroup && !onWelcome && (segments as string[]).length === 0) {
       router.replace('/(tabs)');
     }
-  }, [session, isLoading, settingsLoaded, segments, needsGate, skipIntentGate]);
+  }, [session, isLoading, settingsLoaded, segments, hasSeenWelcome]);
 
   async function fetchProfile(userId: string) {
     const { data } = await supabase
@@ -84,8 +89,7 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="intent-gate" options={{ animation: 'fade' }} />
-      <Stack.Screen name="emergency" options={{ animation: 'fade', gestureEnabled: false }} />
+      <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
       <Stack.Screen name="conversations" />
       <Stack.Screen name="conversation" />
       <Stack.Screen name="submit-testimony" options={{ presentation: 'modal' }} />
@@ -95,6 +99,16 @@ export default function RootLayout() {
       <Stack.Screen name="opportunity" />
       <Stack.Screen name="testimony" />
       <Stack.Screen name="resource" />
+      <Stack.Screen name="legal" />
+      <Stack.Screen name="support" />
+      <Stack.Screen name="upgrade" />
+      <Stack.Screen name="manage-org" />
+      <Stack.Screen name="opportunity-form" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="event-form" options={{ presentation: 'modal' }} />
+      {/* intent-gate and emergency screens are preserved on disk but unrouted.
+          To restore: add Stack.Screen entries here and re-wire routing above. */}
     </Stack>
   );
 }
+
+export default Sentry.wrap(RootLayout);

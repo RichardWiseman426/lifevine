@@ -36,10 +36,10 @@ export function OpportunityCard({ opportunity: o, onPress }: Props) {
       )}
       <View style={styles.footer}>
         {location ? (
-          <Text style={styles.meta}>{o.is_remote ? '🌐' : '📍'} {location}</Text>
+          <Text style={styles.meta}>{location}</Text>
         ) : null}
         {o.commitment_description ? (
-          <Text style={styles.meta}>⏱ {o.commitment_description}</Text>
+          <Text style={styles.meta}>{o.commitment_description}</Text>
         ) : null}
       </View>
       <View style={styles.ctaRow}>

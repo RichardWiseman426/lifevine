@@ -18,6 +18,8 @@ export interface Testimony {
   organizations: {
     name: string;
     slug: string;
+    city: string | null;
+    state: string | null;
   } | null;
 }
 
@@ -36,7 +38,7 @@ export function useTestimonies(category = '') {
         .select(`
           id,title,body,category,is_anonymous,is_featured,response_count,created_at,author_id,
           profiles(display_name,avatar_url),
-          organizations(name,slug)
+          organizations(name,slug,city,state)
         `)
         .eq('status', 'approved')
         .is('deleted_at', null)

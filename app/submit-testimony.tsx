@@ -9,33 +9,37 @@ import { supabase } from '../src/lib/supabase';
 import { useAuthStore } from '../src/store/auth';
 
 const CATEGORIES = [
-  { label: 'Healing', value: 'healing' },
-  { label: 'Provision', value: 'provision' },
-  { label: 'Community', value: 'community' },
-  { label: 'Restoration', value: 'restoration' },
-  { label: 'Salvation', value: 'salvation' },
+  { label: 'Healing',     value: 'healing',     icon: '❤️‍🩹', color: '#F59E0B', bg: '#FEF3C7' },
+  { label: 'Provision',   value: 'provision',   icon: '🙏',    color: '#10B981', bg: '#ECFDF5' },
+  { label: 'Community',   value: 'community',   icon: '👥',    color: '#3B82F6', bg: '#EFF6FF' },
+  { label: 'Restoration', value: 'restoration', icon: '🌱',    color: '#EC4899', bg: '#FDF2F8' },
+  { label: 'Salvation',   value: 'salvation',   icon: '✨',    color: '#8B5CF6', bg: '#F5F3FF' },
 ];
 
 export default function SubmitTestimonyScreen() {
-  const { user } = useAuthStore();
+  const { user, profile } = useAuthStore();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [category, setCategory] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit() {
-    if (!user) { router.push('/(auth)/sign-in'); return; }
+    if (!user) {
+      router.push('/(auth)/sign-in');
+      return;
+    }
+    if (!category) {
+      Alert.alert('Choose a category', 'Select what best describes your story.');
+      return;
+    }
     if (title.trim().length < 3) {
-      Alert.alert('Add a title', 'Please give your story a short title.');
+      Alert.alert('Add a title', 'Give your story a short title.');
       return;
     }
     if (body.trim().length < 50) {
       Alert.alert('Too short', 'Please share at least a few sentences (50 characters minimum).');
-      return;
-    }
-    if (!category) {
-      Alert.alert('Choose a category', 'Please select what best describes your story.');
       return;
     }
 
@@ -53,57 +57,100 @@ export default function SubmitTestimonyScreen() {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      Alert.alert(
-        'Story submitted!',
-        'Thank you for sharing. Your story will be reviewed and published shortly.',
-        [{ text: 'Done', onPress: () => router.back() }]
-      );
+      setSubmitted(true);
     }
   }
 
+  // ── Success screen ──────────────────────────────────────────────
+  if (submitted) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.successWrap}>
+          <Text style={styles.successEmoji}>🌿</Text>
+          <Text style={styles.successTitle}>Story submitted.</Text>
+          <Text style={styles.successBody}>
+            Thank you for sharing, {profile?.first_name ?? 'friend'}. Your story will be
+            reviewed and published shortly. It may encourage someone more than you know.
+          </Text>
+          <View style={styles.successVerse}>
+            <Text style={styles.successVerseText}>
+              "They triumphed over him by the blood of the Lamb{'\n'}and by the word of their testimony."
+            </Text>
+            <Text style={styles.successVerseRef}>— Revelation 12:11</Text>
+          </View>
+          <TouchableOpacity style={styles.successBtn} onPress={() => router.back()}>
+            <Text style={styles.successBtnText}>Back to Community</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // ── Form ────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.cancel}>Cancel</Text>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Text style={styles.headerCancel}>Cancel</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Share Your Story</Text>
         <TouchableOpacity
           onPress={handleSubmit}
           disabled={submitting}
-          style={[styles.submitHeaderBtn, submitting && { opacity: 0.4 }]}
+          style={[styles.headerSubmitBtn, submitting && { opacity: 0.5 }]}
         >
           {submitting
             ? <ActivityIndicator color="#fff" size="small" />
-            : <Text style={styles.submitHeaderText}>Submit</Text>
+            : <Text style={styles.headerSubmitText}>Submit</Text>
           }
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Intro */}
+        <View style={styles.introCard}>
+          <Text style={styles.introText}>
+            What has God done in your life? What has this community meant to you?
+            Your experience — big or small — matters here.
+          </Text>
+        </View>
+
         {/* Category */}
-        <Text style={styles.label}>Category <Text style={styles.required}>*</Text></Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          <View style={styles.categoryRow}>
-            {CATEGORIES.map((c) => (
+        <Text style={styles.label}>What kind of story is this? <Text style={styles.req}>*</Text></Text>
+        <View style={styles.categoryGrid}>
+          {CATEGORIES.map((c) => {
+            const active = category === c.value;
+            return (
               <TouchableOpacity
                 key={c.value}
-                style={[styles.categoryChip, category === c.value && styles.categoryChipActive]}
+                style={[
+                  styles.categoryChip,
+                  active && { backgroundColor: c.bg, borderColor: c.color },
+                ]}
                 onPress={() => setCategory(c.value)}
+                activeOpacity={0.75}
               >
-                <Text style={[styles.categoryChipText, category === c.value && styles.categoryChipTextActive]}>
+                <Text style={styles.categoryChipIcon}>{c.icon}</Text>
+                <Text style={[styles.categoryChipText, active && { color: c.color, fontWeight: '700' }]}>
                   {c.label}
                 </Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
+            );
+          })}
+        </View>
 
         {/* Title */}
-        <Text style={styles.label}>Title <Text style={styles.required}>*</Text></Text>
+        <Text style={styles.label}>Title <Text style={styles.req}>*</Text></Text>
         <TextInput
           style={styles.input}
           placeholder="Give your story a short title…"
+          placeholderTextColor="#A8A29E"
           value={title}
           onChangeText={setTitle}
           maxLength={200}
@@ -112,17 +159,18 @@ export default function SubmitTestimonyScreen() {
         <Text style={styles.charCount}>{title.length}/200</Text>
 
         {/* Body */}
-        <Text style={styles.label}>Your Story <Text style={styles.required}>*</Text></Text>
+        <Text style={styles.label}>Your Story <Text style={styles.req}>*</Text></Text>
         <TextInput
-          style={[styles.input, styles.inputMulti]}
+          style={[styles.input, styles.inputTall]}
           placeholder="Share what happened. Be as specific or as brief as feels right. Your story matters."
+          placeholderTextColor="#A8A29E"
           value={body}
           onChangeText={setBody}
           multiline
           textAlignVertical="top"
           maxLength={10000}
         />
-        <Text style={styles.charCount}>{body.length}/10,000 · minimum 50</Text>
+        <Text style={styles.charCount}>{body.length}/10,000 · minimum 50 characters</Text>
 
         {/* Anonymous toggle */}
         <TouchableOpacity
@@ -139,68 +187,136 @@ export default function SubmitTestimonyScreen() {
           </View>
         </TouchableOpacity>
 
+        {/* Disclaimer */}
         <Text style={styles.disclaimer}>
           All stories are reviewed before publishing. We'll notify you when yours goes live.
         </Text>
+
+        {/* Bottom submit button */}
+        <TouchableOpacity
+          style={[styles.submitBottomBtn, submitting && { opacity: 0.5 }]}
+          onPress={handleSubmit}
+          disabled={submitting}
+        >
+          {submitting
+            ? <ActivityIndicator color="#fff" size="small" />
+            : <Text style={styles.submitBottomText}>Submit My Story</Text>
+          }
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1, backgroundColor: '#F5F0E8' },
+
+  // Header
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1, borderBottomColor: '#F0EBE4',
   },
-  cancel: { fontSize: 15, color: '#888' },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: '#1a1a1a' },
-  submitHeaderBtn: {
+  headerCancel: { fontSize: 15, color: '#A8A29E', fontWeight: '500' },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: '#1C1917' },
+  headerSubmitBtn: {
     backgroundColor: '#2D6A4F', borderRadius: 8,
     paddingVertical: 7, paddingHorizontal: 16,
+    minWidth: 68, alignItems: 'center',
   },
-  submitHeaderText: { color: '#fff', fontWeight: '700', fontSize: 14 },
-  scroll: { flex: 1, padding: 20 },
-  label: { fontSize: 13, fontWeight: '700', color: '#555', marginBottom: 8, marginTop: 20 },
-  required: { color: '#e53e3e' },
-  categoryScroll: { marginBottom: 4 },
-  categoryRow: { flexDirection: 'row', gap: 8, paddingBottom: 4 },
-  categoryChip: {
-    borderRadius: 20, paddingHorizontal: 16, paddingVertical: 8,
-    backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0',
+  headerSubmitText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+
+  scroll: { flex: 1 },
+  scrollContent: { padding: 20, paddingBottom: 56 },
+
+  // Intro card
+  introCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 16,
+    padding: 18, marginBottom: 24,
+    borderWidth: 1, borderColor: '#E5DDD4',
   },
-  categoryChipActive: { backgroundColor: '#2D6A4F', borderColor: '#2D6A4F' },
-  categoryChipText: { fontSize: 13, color: '#555', fontWeight: '500' },
-  categoryChipTextActive: { color: '#fff', fontWeight: '700' },
+  introText: { fontSize: 14, color: '#57534E', lineHeight: 22, fontStyle: 'italic' },
+
+  // Fields
+  label: { fontSize: 13, fontWeight: '700', color: '#57534E', marginBottom: 10, marginTop: 8 },
+  req: { color: '#DC2626' },
   input: {
-    borderWidth: 1, borderColor: '#ddd', borderRadius: 12,
-    padding: 14, fontSize: 15, backgroundColor: '#fafafa', color: '#1a1a1a',
+    borderWidth: 1, borderColor: '#E5DDD4', borderRadius: 12,
+    padding: 14, fontSize: 15, backgroundColor: '#FFFFFF', color: '#1C1917',
   },
-  inputMulti: { minHeight: 200 },
-  charCount: { fontSize: 12, color: '#aaa', textAlign: 'right', marginTop: 4 },
+  inputTall: { minHeight: 200, textAlignVertical: 'top' },
+  charCount: { fontSize: 12, color: '#A8A29E', textAlign: 'right', marginTop: 4, marginBottom: 8 },
+
+  // Categories
+  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  categoryChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#FFFFFF', borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 10,
+    borderWidth: 1.5, borderColor: '#E5DDD4',
+  },
+  categoryChipIcon: { fontSize: 16 },
+  categoryChipText: { fontSize: 13, color: '#78716C', fontWeight: '500' },
+
+  // Anonymous toggle
   anonRow: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#f9f9f9', borderRadius: 14,
-    padding: 16, marginTop: 24, gap: 14,
+    backgroundColor: '#FFFFFF', borderRadius: 14,
+    padding: 16, marginTop: 16, gap: 14,
+    borderWidth: 1, borderColor: '#E5DDD4',
   },
   toggle: {
     width: 44, height: 26, borderRadius: 13,
-    backgroundColor: '#ddd', justifyContent: 'center', padding: 2,
+    backgroundColor: '#E5DDD4', justifyContent: 'center', padding: 2, flexShrink: 0,
   },
   toggleOn: { backgroundColor: '#2D6A4F' },
   toggleThumb: {
-    width: 22, height: 22, borderRadius: 11,
-    backgroundColor: '#fff', shadowColor: '#000',
-    shadowOpacity: 0.15, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff',
+    shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 }, elevation: 2,
   },
   toggleThumbOn: { transform: [{ translateX: 18 }] },
   anonText: { flex: 1 },
-  anonTitle: { fontSize: 14, fontWeight: '700', color: '#1a1a1a' },
-  anonSub: { fontSize: 12, color: '#888', marginTop: 2 },
+  anonTitle: { fontSize: 14, fontWeight: '700', color: '#1C1917' },
+  anonSub: { fontSize: 12, color: '#A8A29E', marginTop: 2 },
+
   disclaimer: {
-    fontSize: 12, color: '#aaa', textAlign: 'center',
-    marginTop: 24, marginBottom: 40, lineHeight: 18,
+    fontSize: 12, color: '#A8A29E', textAlign: 'center',
+    marginTop: 20, lineHeight: 18,
   },
+
+  // Bottom submit button
+  submitBottomBtn: {
+    backgroundColor: '#2D6A4F', borderRadius: 14,
+    paddingVertical: 16, alignItems: 'center', marginTop: 24,
+  },
+  submitBottomText: { color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: -0.2 },
+
+  // Success screen
+  successWrap: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  successEmoji: { fontSize: 64, marginBottom: 20 },
+  successTitle: { fontSize: 26, fontWeight: '800', color: '#1C1917', marginBottom: 14, letterSpacing: -0.5 },
+  successBody: {
+    fontSize: 15, color: '#57534E', textAlign: 'center',
+    lineHeight: 24, marginBottom: 28,
+  },
+  successVerse: {
+    backgroundColor: '#F0FDF4', borderRadius: 18, padding: 22,
+    borderWidth: 1, borderColor: '#BBF7D0',
+    alignItems: 'center', marginBottom: 32, width: '100%',
+  },
+  successVerseText: {
+    fontSize: 15, fontStyle: 'italic', color: '#1C1917',
+    textAlign: 'center', lineHeight: 24, marginBottom: 10, fontWeight: '500',
+  },
+  successVerseRef: { fontSize: 13, color: '#2E7D32', fontWeight: '700' },
+  successBtn: {
+    backgroundColor: '#2D6A4F', borderRadius: 14,
+    paddingVertical: 15, paddingHorizontal: 40,
+  },
+  successBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });

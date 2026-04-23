@@ -12,7 +12,7 @@ export function useMyOrgs() {
     setLoading(true);
     const { data } = await supabase
       .from('org_members')
-      .select('role, status, organizations(id, name, slug, category, city, state, is_verified)')
+      .select('role, status, organizations(id, name, slug, category, city, state, is_verified, logo_url)')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .order('joined_at', { ascending: false });
@@ -29,7 +29,16 @@ export function useUpdateProfile() {
   const { user, setProfile } = useAuthStore();
   const [saving, setSaving] = useState(false);
 
-  async function updateProfile(fields: { display_name?: string; bio?: string; username?: string }) {
+  async function updateProfile(fields: {
+    display_name?: string;
+    bio?: string;
+    username?: string;
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+    location_city?: string;
+    location_state?: string;
+  }) {
     if (!user) return { error: 'Not signed in' };
     setSaving(true);
     const { data, error } = await supabase

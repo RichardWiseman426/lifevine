@@ -3,53 +3,66 @@ import {
   View, Text, Image, FlatList, StyleSheet,
   TouchableOpacity, ScrollView, Dimensions,
   NativeSyntheticEvent, NativeScrollEvent, ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { supabase } from '../../src/lib/supabase';
 import { useAuthStore } from '../../src/store/auth';
 import { useDrawerStore } from '../../src/store/drawer';
+import { useSettingsStore } from '../../src/store/settings';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// ── Daily affirmations (rotates by day-of-year) ─────────────────
+// ── Contributor category options (shown in first-load picker) ────
+export const HOME_CATEGORIES = [
+  { key: 'church',        label: 'Churches' },
+  { key: 'ministry',      label: 'Ministries' },
+  { key: 'support_group', label: 'Support Groups' },
+  { key: 'therapy',       label: 'Counseling & Therapy' },
+  { key: 'medical',       label: 'Medical' },
+  { key: 'community',     label: 'Community Orgs' },
+  { key: 'events',        label: 'Upcoming Events' },
+  { key: 'opportunities', label: 'Volunteer Opportunities' },
+];
+
+// ── Daily affirmations — NKJV scripture (rotates by day-of-year) ─
 const AFFIRMATIONS = [
-  { text: 'You are not alone. Community is closer than you think.', ref: undefined },
-  { text: 'You were made for more than you can see right now.', ref: 'Jeremiah 29:11' },
-  { text: 'Every act of kindness creates a ripple without end.', ref: undefined },
-  { text: 'Rest is not weakness. It is wisdom.', ref: undefined },
-  { text: 'You are seen. You are known. You matter.', ref: 'Romans 8:38' },
-  { text: 'Small steps forward are still forward.', ref: undefined },
-  { text: 'Healing is not linear — and that\'s okay.', ref: undefined },
-  { text: 'Where two or three gather, something real happens.', ref: 'Matthew 18:20' },
-  { text: 'Your story is not over. Not even close.', ref: undefined },
-  { text: 'Love your neighbor — it starts with showing up.', ref: 'Mark 12:31' },
-  { text: 'You don\'t have to have it all together to reach out.', ref: undefined },
-  { text: 'Strength is asking for help when you need it.', ref: undefined },
-  { text: 'There is always someone whose life is better because you exist.', ref: undefined },
-  { text: 'Grace means starting again, as many times as it takes.', ref: undefined },
-  { text: 'Real community shows up in the hard moments.', ref: undefined },
-  { text: 'You carry more light than you realize.', ref: undefined },
-  { text: 'Be the person you needed when you were younger.', ref: undefined },
-  { text: 'Patience with yourself is a form of courage.', ref: undefined },
-  { text: 'Do justice. Love kindness. Walk humbly.', ref: 'Micah 6:8' },
-  { text: 'One conversation can change everything.', ref: undefined },
-  { text: 'You are enough, exactly as you are, right now.', ref: undefined },
-  { text: 'Service is the rent we pay for our place on earth.', ref: undefined },
-  { text: 'The present moment is where life actually happens.', ref: undefined },
-  { text: 'There is no exhaustion like the exhaustion of pretending.', ref: undefined },
-  { text: 'Let your roots grow deep so your branches can reach far.', ref: 'Colossians 2:7' },
-  { text: 'Fear not — you were made for connection, not isolation.', ref: 'Isaiah 41:10' },
-  { text: 'Every person you meet is fighting a battle you know nothing about.', ref: undefined },
-  { text: 'Showing up imperfectly is infinitely better than not showing up.', ref: undefined },
-  { text: 'When we help others heal, we heal ourselves too.', ref: undefined },
-  { text: 'You belong here. This community is yours.', ref: undefined },
+  { text: 'I can do all things through Christ who strengthens me.', ref: 'Philippians 4:13' },
+  { text: 'For I know the thoughts that I think toward you, says the Lord, thoughts of peace and not of evil, to give you a future and a hope.', ref: 'Jeremiah 29:11' },
+  { text: 'The Lord is my shepherd; I shall not want.', ref: 'Psalm 23:1' },
+  { text: 'Trust in the Lord with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths.', ref: 'Proverbs 3:5-6' },
+  { text: 'Be strong and of good courage; do not be afraid, nor be dismayed, for the Lord your God is with you wherever you go.', ref: 'Joshua 1:9' },
+  { text: 'Come to Me, all you who labor and are heavy laden, and I will give you rest.', ref: 'Matthew 11:28' },
+  { text: 'For God so loved the world that He gave His only begotten Son, that whoever believes in Him should not perish but have everlasting life.', ref: 'John 3:16' },
+  { text: 'The Lord your God in your midst, the Mighty One, will save; He will rejoice over you with gladness, He will quiet you with His love, He will rejoice over you with singing.', ref: 'Zephaniah 3:17' },
+  { text: 'Those who wait on the Lord shall renew their strength; they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint.', ref: 'Isaiah 40:31' },
+  { text: 'Neither death nor life, nor angels nor principalities nor powers, nor things present nor things to come, nor height nor depth, nor any other created thing, shall be able to separate us from the love of God which is in Christ Jesus our Lord.', ref: 'Romans 8:38-39' },
+  { text: 'We know that all things work together for good to those who love God, to those who are the called according to His purpose.', ref: 'Romans 8:28' },
+  { text: 'Be anxious for nothing, but in everything by prayer and supplication, with thanksgiving, let your requests be made known to God.', ref: 'Philippians 4:6' },
+  { text: 'The peace of God, which surpasses all understanding, will guard your hearts and minds through Christ Jesus.', ref: 'Philippians 4:7' },
+  { text: 'Beloved, let us love one another, for love is of God; and everyone who loves is born of God and knows God.', ref: '1 John 4:7' },
+  { text: 'A new commandment I give to you, that you love one another; as I have loved you, that you also love one another.', ref: 'John 13:34' },
+  { text: 'If anyone is in Christ, he is a new creation; old things have passed away; behold, all things have become new.', ref: '2 Corinthians 5:17' },
+  { text: 'He gives power to the weak, and to those who have no might He increases strength.', ref: 'Isaiah 40:29' },
+  { text: 'Cast your burden on the Lord, and He shall sustain you; He shall never permit the righteous to be moved.', ref: 'Psalm 55:22' },
+  { text: 'The Lord is near to those who have a broken heart, and saves such as have a contrite spirit.', ref: 'Psalm 34:18' },
+  { text: 'May the God of hope fill you with all joy and peace in believing, that you may abound in hope by the power of the Holy Spirit.', ref: 'Romans 15:13' },
+  { text: 'Let us not grow weary while doing good, for in due season we shall reap if we do not lose heart.', ref: 'Galatians 6:9' },
+  { text: 'The Lord will fight for you, and you shall hold your peace.', ref: 'Exodus 14:14' },
+  { text: 'He heals the brokenhearted and binds up their wounds.', ref: 'Psalm 147:3' },
+  { text: 'Two are better than one, because they have a good reward for their labor. For if they fall, one will lift up his companion.', ref: 'Ecclesiastes 4:9-10' },
+  { text: 'Bear one another\'s burdens, and so fulfill the law of Christ.', ref: 'Galatians 6:2' },
+  { text: 'Comfort each other and edify one another, just as you also are doing.', ref: '1 Thessalonians 5:11' },
+  { text: 'For where two or three are gathered together in My name, I am there in the midst of them.', ref: 'Matthew 18:20' },
+  { text: 'Strength and honor are her clothing; she shall rejoice in time to come.', ref: 'Proverbs 31:25' },
+  { text: 'This is the day the Lord has made; we will rejoice and be glad in it.', ref: 'Psalm 118:24' },
+  { text: 'He who began a good work in you will complete it until the day of Jesus Christ.', ref: 'Philippians 1:6' },
 ];
 
 function getDailyAffirmation() {
   const start = new Date(new Date().getFullYear(), 0, 0);
-  const diff = new Date().getTime() - start.getTime();
-  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const dayOfYear = Math.floor((Date.now() - start.getTime()) / 86400000);
   return AFFIRMATIONS[dayOfYear % AFFIRMATIONS.length];
 }
 
@@ -62,13 +75,12 @@ function greeting() {
 
 // ── Featured Contributor Card ────────────────────────────────────
 function FeaturedCard({ org }: { org: any }) {
-  const initials = org.name
-    .split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase();
+  const initials = org.name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase();
   const location = [org.city, org.state].filter(Boolean).join(', ');
 
   return (
     <TouchableOpacity
-      style={[featStyles.card, { width: SCREEN_WIDTH - 40 }]}
+      style={[featStyles.card, { width: SCREEN_WIDTH - 48 }]}
       onPress={() => router.push(`/org/${org.id}`)}
       activeOpacity={0.88}
     >
@@ -80,7 +92,7 @@ function FeaturedCard({ org }: { org: any }) {
           </View>
           <View style={featStyles.badges}>
             <View style={featStyles.featuredPill}>
-              <Text style={featStyles.featuredPillText}>⭐ Featured</Text>
+              <Text style={featStyles.featuredPillText}>Featured Contributor</Text>
             </View>
             {org.is_verified && (
               <View style={featStyles.verifiedPill}>
@@ -89,18 +101,12 @@ function FeaturedCard({ org }: { org: any }) {
             )}
           </View>
         </View>
-
         <Text style={featStyles.name}>{org.name}</Text>
         {org.short_description ? (
-          <Text style={featStyles.desc} numberOfLines={3}>
-            {org.short_description}
-          </Text>
+          <Text style={featStyles.desc} numberOfLines={3}>{org.short_description}</Text>
         ) : null}
-
         <View style={featStyles.footer}>
-          {location ? (
-            <Text style={featStyles.location}>📍 {location}</Text>
-          ) : <View />}
+          {location ? <Text style={featStyles.location}>{location}</Text> : <View />}
           <Text style={featStyles.cta}>Learn more →</Text>
         </View>
       </View>
@@ -108,7 +114,72 @@ function FeaturedCard({ org }: { org: any }) {
   );
 }
 
-// ── Carousel dot indicators ──────────────────────────────────────
+// ── Generic small org card (for category carousel) ───────────────
+function OrgSmallCard({ org }: { org: any }) {
+  const initials = org.name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase();
+  const location = [org.city, org.state].filter(Boolean).join(', ');
+  return (
+    <TouchableOpacity
+      style={smallStyles.card}
+      onPress={() => router.push(`/org/${org.id}`)}
+      activeOpacity={0.85}
+    >
+      <View style={smallStyles.avatar}>
+        <Text style={smallStyles.avatarText}>{initials}</Text>
+      </View>
+      <Text style={smallStyles.name} numberOfLines={2}>{org.name}</Text>
+      {location ? <Text style={smallStyles.loc} numberOfLines={1}>{location}</Text> : null}
+    </TouchableOpacity>
+  );
+}
+
+// ── Event near-you card ──────────────────────────────────────────
+function EventCard({ occ }: { occ: any }) {
+  const ev = occ.events;
+  const date = new Date(occ.starts_at);
+  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const [month, day] = dateStr.split(' ');
+
+  return (
+    <TouchableOpacity
+      style={evStyles.card}
+      onPress={() => router.push(`/event/${ev.id}`)}
+      activeOpacity={0.85}
+    >
+      <View style={evStyles.dateBox}>
+        <Text style={evStyles.dateMonth}>{month}</Text>
+        <Text style={evStyles.dateDay}>{day}</Text>
+      </View>
+      <View style={evStyles.info}>
+        <Text style={evStyles.title} numberOfLines={2}>{ev.title}</Text>
+        <Text style={evStyles.time}>{timeStr}</Text>
+        {(ev.city || ev.state) ? (
+          <Text style={evStyles.loc} numberOfLines={1}>{[ev.city, ev.state].filter(Boolean).join(', ')}</Text>
+        ) : null}
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+// ── Opportunity small card ────────────────────────────────────────
+function OpportunityCard({ opp }: { opp: any }) {
+  return (
+    <TouchableOpacity
+      style={oppStyles.card}
+      onPress={() => router.push(`/opportunity/${opp.id}`)}
+      activeOpacity={0.85}
+    >
+      <Text style={oppStyles.title} numberOfLines={2}>{opp.title}</Text>
+      {opp.short_description ? (
+        <Text style={oppStyles.desc} numberOfLines={2}>{opp.short_description}</Text>
+      ) : null}
+      <Text style={oppStyles.cta}>See details →</Text>
+    </TouchableOpacity>
+  );
+}
+
+// ── Carousel dots ────────────────────────────────────────────────
 function CarouselDots({ count, active }: { count: number; active: number }) {
   if (count <= 1) return null;
   return (
@@ -120,46 +191,39 @@ function CarouselDots({ count, active }: { count: number; active: number }) {
   );
 }
 
-// ── Activity item row ────────────────────────────────────────────
-function ActivityItem({
-  icon, label, onPress,
-}: { icon: string; label: string; onPress: () => void }) {
+// ── Daily Affirmation card ───────────────────────────────────────
+function AffirmationCard() {
+  const aff = getDailyAffirmation();
   return (
-    <TouchableOpacity style={actStyles.row} onPress={onPress} activeOpacity={0.75}>
-      <Text style={actStyles.icon}>{icon}</Text>
-      <Text style={actStyles.label} numberOfLines={1}>{label}</Text>
-      <Text style={actStyles.chevron}>›</Text>
-    </TouchableOpacity>
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>DAILY AFFIRMATION</Text>
+      <View style={affStyles.card}>
+        <Text style={affStyles.text}>"{aff.text}"</Text>
+        {aff.ref && <Text style={affStyles.ref}>— {aff.ref}</Text>}
+      </View>
+    </View>
   );
 }
 
-// ── Event near-you card ──────────────────────────────────────────
-function EventNearYouCard({ occ }: { occ: any }) {
-  const ev = occ.events;
-  const date = new Date(occ.starts_at);
-  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-
+// ── Category picker (first-load inline prompt) ───────────────────
+function CategoryPicker({ onSelect }: { onSelect: (key: string) => void }) {
   return (
-    <TouchableOpacity
-      style={evStyles.card}
-      onPress={() => router.push(`/event/${ev.id}`)}
-      activeOpacity={0.85}
-    >
-      <View style={evStyles.dateBox}>
-        <Text style={evStyles.dateMonth}>{dateStr.split(' ')[0]}</Text>
-        <Text style={evStyles.dateDay}>{dateStr.split(' ')[1]}</Text>
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>PERSONALIZE YOUR FEED</Text>
+      <Text style={styles.sectionSub}>What are you most interested in? Choose one to customize your home screen.</Text>
+      <View style={pickerStyles.grid}>
+        {HOME_CATEGORIES.map((cat) => (
+          <TouchableOpacity
+            key={cat.key}
+            style={pickerStyles.chip}
+            onPress={() => onSelect(cat.key)}
+            activeOpacity={0.8}
+          >
+            <Text style={pickerStyles.chipText}>{cat.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
-      <View style={evStyles.info}>
-        <Text style={evStyles.title} numberOfLines={2}>{ev.title}</Text>
-        <Text style={evStyles.time}>{timeStr}</Text>
-        {(ev.city || ev.state) ? (
-          <Text style={evStyles.loc} numberOfLines={1}>
-            📍 {[ev.city, ev.state].filter(Boolean).join(', ')}
-          </Text>
-        ) : null}
-      </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -167,29 +231,58 @@ function EventNearYouCard({ occ }: { occ: any }) {
 export default function HomeScreen() {
   const { profile } = useAuthStore();
   const { open } = useDrawerStore();
+  const {
+    homeCarouselCategory,
+    homeCarouselPrompted,
+    showDailyAffirmation,
+    affirmationPosition,
+    setHomeCarouselCategory,
+  } = useSettingsStore();
 
   const [featured, setFeatured]         = useState<any[]>([]);
-  const [carouselIdx, setCarouselIdx]   = useState(0);
-  const [activity, setActivity]         = useState<Array<{ icon: string; label: string; route: string }>>([]);
-  const [eventsNearby, setEventsNearby] = useState<any[]>([]);
+  const [featuredIdx, setFeaturedIdx]   = useState(0);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
 
-  const affirmation = getDailyAffirmation();
-  const firstName = profile?.display_name?.split(' ')[0] ?? null;
+  const [carouselItems, setCarouselItems]   = useState<any[]>([]);
+  const [carouselIdx, setCarouselIdx]       = useState(0);
+  const [loadingCarousel, setLoadingCarousel] = useState(false);
 
-  // ── Fetch featured contributors (location-filtered if possible) ──
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [rsvpItems, setRsvpItems] = useState<Array<{ label: string; route: string }>>([]);
+
+  const affirmation = getDailyAffirmation();
+  // Greeting name: first_name field → first word of display_name → username
+  const nameLabel = profile?.first_name
+    ?? profile?.display_name?.split(' ')[0]
+    ?? profile?.username
+    ?? null;
+
+  // Animated greeting fade-out after 3.5 s
+  const greetingOpacity = useRef(new Animated.Value(1)).current;
+  const [greetingGone, setGreetingGone] = useState(false);
   useEffect(() => {
-    async function loadFeatured() {
+    const t = setTimeout(() => {
+      Animated.timing(greetingOpacity, {
+        toValue: 0,
+        duration: 700,
+        useNativeDriver: true,
+      }).start(() => setGreetingGone(true));
+    }, 3500);
+    return () => clearTimeout(t);
+  }, []);
+
+  // ── Featured contributors ────────────────────────────────────
+  useEffect(() => {
+    async function load() {
       setLoadingFeatured(true);
       let query = supabase
         .from('organizations')
-        .select('id, name, short_description, category, city, state, is_verified')
+        .select('id, name, short_description, city, state, is_verified')
         .eq('is_featured', true)
         .eq('is_active', true)
         .is('deleted_at', null)
         .limit(8);
 
-      // Prefer local first — fall back to all featured
       if (profile?.location_city) {
         const { data: local } = await query.eq('city', profile.location_city);
         if (local && local.length > 0) { setFeatured(local); setLoadingFeatured(false); return; }
@@ -198,100 +291,115 @@ export default function HomeScreen() {
       setFeatured(data ?? []);
       setLoadingFeatured(false);
     }
-    loadFeatured();
+    load();
   }, [profile?.location_city]);
 
-  // ── Fetch activity (unread messages + upcoming RSVPs) ───────────
+  // ── Category carousel ────────────────────────────────────────
+  useEffect(() => {
+    if (!homeCarouselCategory) return;
+    setLoadingCarousel(true);
+    const cat = homeCarouselCategory;
+
+    async function load() {
+      if (cat === 'events') {
+        const now = new Date().toISOString();
+        const month = new Date(Date.now() + 30 * 86400000).toISOString();
+        let q = supabase
+          .from('event_occurrences')
+          .select('id, starts_at, events!inner(id, title, city, state)')
+          .eq('status', 'scheduled')
+          .gte('starts_at', now)
+          .lte('starts_at', month)
+          .order('starts_at', { ascending: true })
+          .limit(8);
+        if (profile?.location_city) q = q.eq('events.city', profile.location_city);
+        else if (profile?.location_state) q = q.eq('events.state', profile.location_state);
+        const { data } = await q;
+        setCarouselItems(data ?? []);
+      } else if (cat === 'opportunities') {
+        const { data } = await supabase
+          .from('opportunities')
+          .select('id, title, short_description')
+          .eq('status', 'open')
+          .is('deleted_at', null)
+          .limit(8);
+        setCarouselItems(data ?? []);
+      } else {
+        let q = supabase
+          .from('organizations')
+          .select('id, name, city, state')
+          .eq('category', cat)
+          .eq('is_active', true)
+          .is('deleted_at', null)
+          .limit(8);
+        if (profile?.location_city) q = q.eq('city', profile.location_city);
+        else if (profile?.location_state) q = q.eq('state', profile.location_state);
+        const { data } = await q;
+        setCarouselItems(data ?? []);
+      }
+      setLoadingCarousel(false);
+    }
+    load();
+  }, [homeCarouselCategory, profile?.location_city, profile?.location_state]);
+
+  // ── Activity bar ──────────────────────────────────────────────
   useEffect(() => {
     if (!profile?.id) return;
     async function loadActivity() {
       const userId = profile!.id;
-      const items: Array<{ icon: string; label: string; route: string }> = [];
 
-      // Unread conversations
+      // Unread message count
       const { data: parts } = await supabase
         .from('conversation_participants')
         .select('conversation_id, last_read_at, conversations(last_message_at)')
         .eq('user_id', userId)
         .not('conversations', 'is', null)
-        .limit(5);
+        .limit(20);
 
-      const unreadConvs = (parts ?? []).filter((p: any) => {
+      const unread = (parts ?? []).filter((p: any) => {
         const lastMsg = p.conversations?.last_message_at;
         return lastMsg && (!p.last_read_at || p.last_read_at < lastMsg);
       });
-      if (unreadConvs.length === 1) {
-        items.push({ icon: '💬', label: '1 unread message', route: '/conversations' });
-      } else if (unreadConvs.length > 1) {
-        items.push({ icon: '💬', label: `${unreadConvs.length} unread messages`, route: '/conversations' });
-      }
+      setUnreadCount(unread.length);
 
       // Upcoming RSVPs (next 7 days)
       const now = new Date().toISOString();
-      const soon = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const soon = new Date(Date.now() + 7 * 86400000).toISOString();
       const { data: rsvps } = await supabase
         .from('event_rsvps')
-        .select('event_occurrences!inner(id, starts_at, events!inner(title))')
+        .select('event_occurrences!inner(id, starts_at, events!inner(id, title))')
         .eq('user_id', userId)
         .gte('event_occurrences.starts_at', now)
         .lte('event_occurrences.starts_at', soon)
         .is('cancelled_at', null)
         .limit(3);
 
-      (rsvps ?? []).forEach((r: any) => {
+      const rsvpRows = (rsvps ?? []).map((r: any) => {
         const occ = r.event_occurrences;
-        if (!occ) return;
-        const title = occ.events?.title ?? 'Event';
         const date = new Date(occ.starts_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        items.push({ icon: '📅', label: `${title} · ${date}`, route: `/event/${occ.events?.id ?? occ.id}` });
+        return { label: `${occ.events?.title ?? 'Event'} · ${date}`, route: `/event/${occ.events?.id ?? occ.id}` };
       });
-
-      setActivity(items.slice(0, 3));
+      setRsvpItems(rsvpRows);
     }
     loadActivity();
   }, [profile?.id]);
 
-  // ── Fetch events near user ──────────────────────────────────────
-  useEffect(() => {
-    if (!profile) return;
-    async function loadNearby() {
-      const now = new Date().toISOString();
-      const month = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-
-      let query = supabase
-        .from('event_occurrences')
-        .select('id, starts_at, events!inner(id, title, city, state, category)')
-        .eq('status', 'scheduled')
-        .gte('starts_at', now)
-        .lte('starts_at', month)
-        .order('starts_at', { ascending: true })
-        .limit(6);
-
-      if (profile?.location_city) {
-        query = query.eq('events.city', profile.location_city);
-      } else if (profile?.location_state) {
-        query = query.eq('events.state', profile.location_state);
-      }
-
-      const { data } = await query;
-      setEventsNearby(data ?? []);
-    }
-    loadNearby();
-  }, [profile?.location_city, profile?.location_state]);
-
-  function handleCarouselScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
-    const x = e.nativeEvent.contentOffset.x;
-    setCarouselIdx(Math.round(x / (SCREEN_WIDTH - 40)));
+  function handleFeaturedScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
+    setFeaturedIdx(Math.round(e.nativeEvent.contentOffset.x / (SCREEN_WIDTH - 48)));
   }
+  function handleCarouselScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
+    setCarouselIdx(Math.round(e.nativeEvent.contentOffset.x / (SCREEN_WIDTH - 48)));
+  }
+
+  const chosenCatLabel = HOME_CATEGORIES.find(c => c.key === homeCarouselCategory)?.label ?? '';
+
+  const affirmationCard = showDailyAffirmation ? <AffirmationCard /> : null;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
 
-        {/* ── SECTION 1: Identity / Welcome ── */}
+        {/* ── Top bar ── */}
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={open}
@@ -302,7 +410,7 @@ export default function HomeScreen() {
             <View style={[styles.hamLine, { width: 13 }]} />
             <View style={styles.hamLine} />
           </TouchableOpacity>
-
+          <View style={styles.topBarSpacer} />
           <Image
             source={require('../../assets/brand/images/app-icon.png')}
             style={styles.topBarIcon}
@@ -310,48 +418,68 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View style={styles.greetingBlock}>
-          <Text style={styles.greeting}>
-            {greeting()}{firstName ? `, ${firstName}` : ''}.
-          </Text>
-        </View>
+        {/* ── Greeting (fades out after 3.5s) ── */}
+        {!greetingGone && (
+          <Animated.Text style={[styles.greeting, { opacity: greetingOpacity }]}>
+            {greeting()}{nameLabel ? `, ${nameLabel}` : ''}.
+          </Animated.Text>
+        )}
 
-        {/* Mission statement */}
-        <View style={styles.missionRow}>
-          <Image
-            source={require('../../assets/brand/images/lv-mark.png')}
-            style={styles.missionLogo}
-            resizeMode="contain"
-          />
-          <Text style={styles.missionText}>
+        {/* ── Wordmark + mission statement (no card) ── */}
+        <View style={styles.wordmarkBlock}>
+          <Text style={styles.wordmark}>
+            <Text style={styles.wordmarkLife}>Life</Text>
+            <Text style={styles.wordmarkVine}>Vine</Text>
+          </Text>
+          <Text style={styles.missionStatement}>
             Connecting you to real help, real people, and real community.
           </Text>
         </View>
 
-        {/* Your Activity bar */}
-        {activity.length > 0 && (
-          <View style={styles.activityBlock}>
-            <Text style={styles.sectionMicrolabel}>YOUR ACTIVITY</Text>
-            <View style={styles.activityCard}>
-              {activity.map((item, i) => (
-                <View key={i}>
-                  {i > 0 && <View style={styles.activityDivider} />}
-                  <ActivityItem
-                    icon={item.icon}
-                    label={item.label}
-                    onPress={() => router.push(item.route as any)}
-                  />
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
+        {/* ── Affirmation at top (if configured) ── */}
+        {affirmationPosition === 'top' && affirmationCard}
 
-        {/* ── SECTION 2: Featured Contributors (hero) ── */}
+        {/* ── Activity bar (notifications mini-dashboard) ── */}
         <View style={styles.section}>
-          <View style={styles.sectionHeadRow}>
-            <Text style={styles.sectionLabel}>⭐  FEATURED CONTRIBUTORS</Text>
+          <Text style={styles.sectionLabel}>YOUR ACTIVITY</Text>
+          <View style={actStyles.card}>
+            {/* Messages row — always visible */}
+            <TouchableOpacity
+              style={actStyles.row}
+              onPress={() => router.push('/conversations' as any)}
+              activeOpacity={0.75}
+            >
+              <View style={[actStyles.dot, unreadCount > 0 && actStyles.dotActive]} />
+              <Text style={actStyles.label}>
+                {unreadCount === 0
+                  ? 'No new messages'
+                  : unreadCount === 1
+                    ? '1 unread message'
+                    : `${unreadCount} unread messages`}
+              </Text>
+              <Text style={actStyles.chevron}>›</Text>
+            </TouchableOpacity>
+            {/* Upcoming RSVP rows */}
+            {rsvpItems.map((item, i) => (
+              <View key={i}>
+                <View style={actStyles.divider} />
+                <TouchableOpacity
+                  style={actStyles.row}
+                  onPress={() => router.push(item.route as any)}
+                  activeOpacity={0.75}
+                >
+                  <View style={[actStyles.dot, actStyles.dotActive]} />
+                  <Text style={actStyles.label} numberOfLines={1}>{item.label}</Text>
+                  <Text style={actStyles.chevron}>›</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
+        </View>
+
+        {/* ── Featured Contributors ── */}
+        <View style={[styles.section, { marginTop: 16 }]}>
+          <Text style={styles.sectionLabelFeatured}>FEATURED CONTRIBUTORS</Text>
           <Text style={styles.sectionSub}>
             {profile?.location_city
               ? `Spotlight organizations in ${profile.location_city}`
@@ -360,128 +488,104 @@ export default function HomeScreen() {
 
           {loadingFeatured ? (
             <View style={styles.carouselLoader}>
-              <ActivityIndicator color="#B8864E" size="small" />
+              <ActivityIndicator color="#B8864E" />
             </View>
           ) : featured.length > 0 ? (
-            <View>
+            <>
               <FlatList
                 data={featured}
                 keyExtractor={(o) => o.id}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={SCREEN_WIDTH - 40}
+                snapToInterval={SCREEN_WIDTH - 48}
                 decelerationRate="fast"
-                onMomentumScrollEnd={handleCarouselScroll}
-                contentContainerStyle={styles.carouselContainer}
+                onMomentumScrollEnd={handleFeaturedScroll}
+                contentContainerStyle={styles.carouselContent}
                 renderItem={({ item }) => <FeaturedCard org={item} />}
                 scrollEventThrottle={16}
               />
-              <CarouselDots count={featured.length} active={carouselIdx} />
-            </View>
+              <CarouselDots count={featured.length} active={featuredIdx} />
+            </>
           ) : (
-            <View style={featStyles.emptyCard}>
-              <Text style={featStyles.emptyIcon}>🌱</Text>
-              <Text style={featStyles.emptyTitle}>Be a Featured Contributor</Text>
-              <Text style={featStyles.emptyBody}>
-                Reach your local community and connect with people who need what you offer.
+            <View style={featStyles.empty}>
+              <Text style={featStyles.emptyText}>
+                No featured contributors yet.{'\n'}Check back soon.
               </Text>
             </View>
           )}
         </View>
 
-        {/* ── SECTION 3: Quick Direction ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>WHAT BRINGS YOU HERE?</Text>
-          <View style={styles.actionGrid}>
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.actionBtnRed]}
-              onPress={() => router.push('/emergency')}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.actionBtnIcon}>🆘</Text>
-              <Text style={styles.actionBtnLabel}>Get Help</Text>
-              <Text style={styles.actionBtnSub}>Emergency & crisis resources</Text>
-            </TouchableOpacity>
+        {/* ── Category carousel (user-chosen) ── */}
+        {!homeCarouselPrompted && !homeCarouselCategory ? (
+          <CategoryPicker onSelect={setHomeCarouselCategory} />
+        ) : homeCarouselCategory ? (
+          <View style={[styles.section, { marginTop: 16 }]}>
+            <View style={styles.sectionHeadRow}>
+              <Text style={styles.sectionLabel}>{chosenCatLabel.toUpperCase()}</Text>
+              {homeCarouselCategory === 'events' && (
+                <TouchableOpacity onPress={() => router.push('/(tabs)/events' as any)}>
+                  <Text style={styles.seeAll}>See All →</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.actionBtnBlue]}
-              onPress={() => router.push('/(tabs)/resources' as any)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.actionBtnIcon}>🤝</Text>
-              <Text style={styles.actionBtnLabel}>Find Support</Text>
-              <Text style={styles.actionBtnSub}>Counseling, care & community</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.actionBtnGreen]}
-              onPress={() => router.push('/(tabs)/opportunities' as any)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.actionBtnIcon}>💛</Text>
-              <Text style={styles.actionBtnLabel}>Help Others</Text>
-              <Text style={styles.actionBtnSub}>Volunteer & serve your community</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* ── SECTION 4: Daily Affirmation ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>🌱  DAILY AFFIRMATION</Text>
-          <View style={styles.affirmCard}>
-            <Text style={styles.affirmText}>"{affirmation.text}"</Text>
-            {affirmation.ref && (
-              <Text style={styles.affirmRef}>— {affirmation.ref}</Text>
+            {loadingCarousel ? (
+              <View style={styles.carouselLoader}>
+                <ActivityIndicator color="#2E7D32" />
+              </View>
+            ) : carouselItems.length > 0 ? (
+              homeCarouselCategory === 'events' ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.hScrollContent}
+                >
+                  {carouselItems.map((occ) => <EventCard key={occ.id} occ={occ} />)}
+                </ScrollView>
+              ) : homeCarouselCategory === 'opportunities' ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.hScrollContent}
+                >
+                  {carouselItems.map((opp) => <OpportunityCard key={opp.id} opp={opp} />)}
+                </ScrollView>
+              ) : (
+                <>
+                  <FlatList
+                    data={carouselItems}
+                    keyExtractor={(o) => o.id}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    snapToInterval={SCREEN_WIDTH - 48}
+                    decelerationRate="fast"
+                    onMomentumScrollEnd={handleCarouselScroll}
+                    contentContainerStyle={styles.carouselContent}
+                    renderItem={({ item }) => <OrgSmallCard org={item} />}
+                    scrollEventThrottle={16}
+                  />
+                  <CarouselDots count={carouselItems.length} active={carouselIdx} />
+                </>
+              )
+            ) : (
+              <Text style={styles.emptyText}>
+                Nothing in this category near you yet.
+              </Text>
             )}
           </View>
-        </View>
+        ) : null}
 
-        {/* ── Events Near You (shown only if there are results) ── */}
-        {eventsNearby.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeadRow}>
-              <Text style={styles.sectionLabel}>📍  EVENTS NEAR YOU</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/events' as any)}>
-                <Text style={styles.seeAll}>See All →</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.eventsRow}
-            >
-              {eventsNearby.map((occ) => (
-                <EventNearYouCard key={occ.id} occ={occ} />
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* No location set — soft prompt */}
-        {eventsNearby.length === 0 && profile && !profile.location_city && !profile.location_state && (
-          <View style={styles.section}>
-            <View style={styles.locationPrompt}>
-              <Text style={styles.locationPromptText}>
-                📍 Add your city in{' '}
-                <Text
-                  style={styles.locationPromptLink}
-                  onPress={() => router.push('/(tabs)/profile' as any)}
-                >
-                  Profile
-                </Text>
-                {' '}to see local events and contributors near you.
-              </Text>
-            </View>
-          </View>
-        )}
+        {/* ── Affirmation at bottom (default) ── */}
+        {affirmationPosition === 'bottom' && affirmationCard}
 
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-// ── Featured card styles ─────────────────────────────────────────
+// ── Featured styles ──────────────────────────────────────────────
 const featStyles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
@@ -490,117 +594,59 @@ const featStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5DDD4',
     shadowColor: '#1C1917',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.10,
-    shadowRadius: 18,
-    elevation: 5,
-    marginRight: 16,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 7,
+    marginRight: 12,
   },
-  topAccent: { height: 6, backgroundColor: '#B8864E' },
-  body: { padding: 22 },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 18,
-  },
-  avatar: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: '#FDF3E3',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { color: '#B8864E', fontWeight: '800', fontSize: 20 },
+  topAccent: { height: 10, backgroundColor: '#B8864E' },
+  body: { padding: 32 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  avatar: { width: 88, height: 88, borderRadius: 22, backgroundColor: '#FDF3E3', alignItems: 'center', justifyContent: 'center' },
+  avatarText: { color: '#B8864E', fontWeight: '800', fontSize: 32 },
   badges: { gap: 8, alignItems: 'flex-end' },
-  featuredPill: {
-    backgroundColor: '#FDF3E3',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: '#F0D9B8',
-  },
-  featuredPillText: { fontSize: 11, fontWeight: '800', color: '#B8864E', letterSpacing: 0.2 },
-  verifiedPill: {
-    backgroundColor: '#E8F5E9',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  verifiedPillText: { fontSize: 11, fontWeight: '700', color: '#2E7D32' },
-  name: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#1C1917',
-    letterSpacing: -0.5,
-    marginBottom: 10,
-  },
-  desc: {
-    fontSize: 14,
-    color: '#78716C',
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: '#F0EBE4',
-    paddingTop: 14,
-  },
-  location: { fontSize: 13, color: '#A8A29E' },
-  cta: { fontSize: 14, color: '#B8864E', fontWeight: '700' },
-  emptyCard: {
-    backgroundColor: '#FDFAF5',
-    borderRadius: 20,
+  featuredPill: { backgroundColor: '#FDF3E3', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6, borderWidth: 1, borderColor: '#F0D9B8' },
+  featuredPillText: { fontSize: 12, fontWeight: '800', color: '#B8864E', letterSpacing: 0.3 },
+  verifiedPill: { backgroundColor: '#E8F5E9', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 5 },
+  verifiedPillText: { fontSize: 12, fontWeight: '700', color: '#2E7D32' },
+  name: { fontSize: 26, fontWeight: '800', color: '#1C1917', letterSpacing: -0.6, marginBottom: 12 },
+  desc: { fontSize: 16, color: '#78716C', lineHeight: 25, marginBottom: 28 },
+  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#F0EBE4', paddingTop: 20 },
+  location: { fontSize: 14, color: '#A8A29E' },
+  cta: { fontSize: 15, color: '#B8864E', fontWeight: '700' },
+  empty: { paddingVertical: 40, alignItems: 'center' },
+  emptyText: { fontSize: 14, color: '#A8A29E', textAlign: 'center', lineHeight: 22 },
+});
+
+// ── Small org card (category carousel) ──────────────────────────
+const smallStyles = StyleSheet.create({
+  card: {
+    width: 160,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#E5DDD4',
-    borderStyle: 'dashed',
-    padding: 28,
-    alignItems: 'center',
-    marginTop: 8,
+    marginRight: 12,
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  emptyIcon: { fontSize: 32, marginBottom: 10 },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: '#1C1917', marginBottom: 6 },
-  emptyBody: { fontSize: 13, color: '#78716C', textAlign: 'center', lineHeight: 20 },
+  avatar: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#E8F5E9', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  avatarText: { color: '#2E7D32', fontWeight: '800', fontSize: 14 },
+  name: { fontSize: 13, fontWeight: '700', color: '#1C1917', lineHeight: 18, marginBottom: 4 },
+  loc: { fontSize: 11, color: '#A8A29E' },
 });
 
-// ── Dot styles ───────────────────────────────────────────────────
-const dotStyles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
-    paddingTop: 14,
-    paddingBottom: 4,
-  },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#E5DDD4' },
-  dotActive: { backgroundColor: '#B8864E', width: 18 },
-});
-
-// ── Activity styles ──────────────────────────────────────────────
-const actStyles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  icon: { fontSize: 18, width: 24, textAlign: 'center' },
-  label: { flex: 1, fontSize: 14, color: '#1C1917', fontWeight: '500' },
-  chevron: { fontSize: 20, color: '#C4B9AF' },
-});
-
-// ── Event near-you styles ────────────────────────────────────────
+// ── Event card ───────────────────────────────────────────────────
 const evStyles = StyleSheet.create({
   card: {
     width: 200,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E5DDD4',
     padding: 14,
@@ -614,13 +660,7 @@ const evStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  dateBox: {
-    width: 40,
-    alignItems: 'center',
-    backgroundColor: '#E8F5E9',
-    borderRadius: 10,
-    paddingVertical: 6,
-  },
+  dateBox: { width: 40, alignItems: 'center', backgroundColor: '#E8F5E9', borderRadius: 10, paddingVertical: 6 },
   dateMonth: { fontSize: 10, fontWeight: '700', color: '#2E7D32', textTransform: 'uppercase' },
   dateDay: { fontSize: 18, fontWeight: '800', color: '#2E7D32', lineHeight: 22 },
   info: { flex: 1 },
@@ -629,7 +669,67 @@ const evStyles = StyleSheet.create({
   loc: { fontSize: 11, color: '#A8A29E' },
 });
 
-// ── Screen styles ─────────────────────────────────────────────────
+// ── Opportunity card ─────────────────────────────────────────────
+const oppStyles = StyleSheet.create({
+  card: {
+    width: 200,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+    marginRight: 12,
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  title: { fontSize: 14, fontWeight: '700', color: '#1C1917', lineHeight: 20, marginBottom: 6 },
+  desc: { fontSize: 12, color: '#78716C', lineHeight: 18, marginBottom: 10 },
+  cta: { fontSize: 12, color: '#2E7D32', fontWeight: '700' },
+});
+
+// ── Dot indicators ───────────────────────────────────────────────
+const dotStyles = StyleSheet.create({
+  row: { flexDirection: 'row', justifyContent: 'center', gap: 6, paddingTop: 12, paddingBottom: 2 },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#E5DDD4' },
+  dotActive: { backgroundColor: '#B8864E', width: 18 },
+});
+
+// ── Activity styles ──────────────────────────────────────────────
+const actStyles = StyleSheet.create({
+  card: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#E5DDD4', overflow: 'hidden' },
+  divider: { height: 1, backgroundColor: '#F0EBE4', marginHorizontal: 14 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, gap: 12 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#D4C4B0', flexShrink: 0 },
+  dotActive: { backgroundColor: '#2D6A4F' },
+  label: { flex: 1, fontSize: 14, color: '#1C1917', fontWeight: '500' },
+  chevron: { fontSize: 20, color: '#C4B9AF' },
+});
+
+// ── Affirmation styles ───────────────────────────────────────────
+const affStyles = StyleSheet.create({
+  card: { backgroundColor: '#F0FDF4', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: '#BBF7D0', marginTop: 8 },
+  text: { fontSize: 15, fontStyle: 'italic', color: '#1C1917', lineHeight: 24, marginBottom: 6 },
+  ref: { fontSize: 13, color: '#2E7D32', fontWeight: '600' },
+});
+
+// ── Category picker styles ───────────────────────────────────────
+const pickerStyles = StyleSheet.create({
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  chip: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+  },
+  chipText: { fontSize: 14, fontWeight: '600', color: '#1C1917' },
+});
+
+// ── Screen styles ────────────────────────────────────────────────
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F0E8' },
   scroll: { paddingBottom: 48 },
@@ -640,8 +740,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 8,
-    gap: 12,
+    paddingBottom: 4,
   },
   hamburgerBtn: {
     width: 38,
@@ -655,131 +754,37 @@ const styles = StyleSheet.create({
     borderColor: '#E5DDD4',
   },
   hamLine: { width: 18, height: 2, borderRadius: 2, backgroundColor: '#1C1917' },
-  topBarIcon: { width: 36, height: 36 },
+  topBarSpacer: { flex: 1 },
+  topBarIcon: { width: 38, height: 38 },
 
   // Greeting
-  greetingBlock: { paddingHorizontal: 20, marginBottom: 16 },
   greeting: {
     fontSize: 22,
     fontWeight: '700',
     color: '#1C1917',
-    letterSpacing: -0.4,
-  },
-
-  // Mission statement
-  missionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E5DDD4',
-  },
-  missionLogo: { width: 36, height: 36 },
-  missionText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#78716C',
-    lineHeight: 19,
-    fontStyle: 'italic',
-  },
-
-  // Activity
-  activityBlock: { marginHorizontal: 20, marginBottom: 20 },
-  activityCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E5DDD4',
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  activityDivider: { height: 1, backgroundColor: '#F0EBE4', marginHorizontal: 16 },
-
-  // Section layout
-  section: { marginHorizontal: 20, marginBottom: 28 },
-  sectionHeadRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#A8A29E',
-    letterSpacing: 1.4,
-    marginBottom: 4,
-  },
-  sectionMicrolabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#A8A29E',
-    letterSpacing: 1.2,
-    marginBottom: 6,
-  },
-  sectionSub: { fontSize: 13, color: '#78716C', marginBottom: 14 },
-  seeAll: { fontSize: 13, color: '#2E7D32', fontWeight: '700' },
-
-  carouselContainer: { paddingRight: 4 },
-  carouselLoader: { paddingVertical: 40, alignItems: 'center' },
-
-  // Action buttons
-  actionGrid: { gap: 10, marginTop: 10 },
-  actionBtn: {
-    borderRadius: 18,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  actionBtnRed:   { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FECACA' },
-  actionBtnBlue:  { backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE' },
-  actionBtnGreen: { backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#BBF7D0' },
-  actionBtnIcon: { fontSize: 26 },
-  actionBtnLabel: { fontSize: 16, fontWeight: '800', color: '#1C1917', flex: 1 },
-  actionBtnSub: {
-    position: 'absolute',
-    bottom: 14,
-    left: 58,
-    right: 18,
-    fontSize: 11,
-    color: '#78716C',
-  },
-
-  // Affirmation
-  affirmCard: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 18,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-    marginTop: 8,
-  },
-  affirmText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    color: '#1C1917',
-    lineHeight: 26,
+    letterSpacing: -0.3,
+    paddingHorizontal: 20,
+    marginTop: 16,
     marginBottom: 8,
   },
-  affirmRef: { fontSize: 13, color: '#2E7D32', fontWeight: '600' },
 
-  // Events row
-  eventsRow: { paddingRight: 4 },
+  // Wordmark + mission
+  wordmarkBlock: { paddingHorizontal: 20, marginBottom: 36 },
+  wordmark: { fontSize: 32, fontWeight: '800', letterSpacing: -1, marginBottom: 4, lineHeight: 38 },
+  wordmarkLife: { color: '#1B5E20' },
+  wordmarkVine: { color: '#4CAF50' },
+  missionStatement: { fontSize: 14, color: '#78716C', lineHeight: 21 },
 
-  // Location prompt
-  locationPrompt: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E5DDD4',
-  },
-  locationPromptText: { fontSize: 14, color: '#78716C', lineHeight: 21 },
-  locationPromptLink: { color: '#2E7D32', fontWeight: '700' },
+  // Sections
+  section: { marginHorizontal: 20, marginBottom: 48 },
+  sectionHeadRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  sectionLabel: { fontSize: 11, fontWeight: '800', color: '#A8A29E', letterSpacing: 1.4, marginBottom: 4 },
+  sectionLabelFeatured: { fontSize: 12, fontWeight: '800', color: '#B8864E', letterSpacing: 1.4, marginBottom: 4 },
+  sectionSub: { fontSize: 13, color: '#78716C', marginBottom: 14 },
+  seeAll: { fontSize: 13, color: '#2E7D32', fontWeight: '700' },
+  emptyText: { fontSize: 14, color: '#A8A29E', paddingVertical: 16 },
+
+  carouselLoader: { paddingVertical: 32, alignItems: 'center' },
+  carouselContent: { paddingRight: 4 },
+  hScrollContent: { paddingRight: 4 },
 });

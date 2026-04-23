@@ -9,7 +9,9 @@ export function EmptyState({ title, subtitle }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <Text style={styles.icon}>🌱</Text>
+        <View style={styles.iconDot} />
+        <View style={[styles.iconDot, styles.iconDotMid]} />
+        <View style={[styles.iconDot, styles.iconDotSm]} />
       </View>
       <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
@@ -33,9 +35,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 18,
+    flexDirection: 'row',
+    gap: 5,
   },
-  icon: {
-    fontSize: 28,
+  iconDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#2D6A4F',
+    opacity: 0.9,
+  },
+  iconDotMid: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    opacity: 1,
+  },
+  iconDotSm: {
+    opacity: 0.5,
   },
   title: {
     fontSize: 18,
