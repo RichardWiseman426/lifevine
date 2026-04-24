@@ -32,7 +32,10 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://ikiwhhuxodegpwuuqblz.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlraXdoaHV4b2RlZ3B3dXVxYmx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODk5NTUsImV4cCI6MjA5MTY2NTk1NX0.jHvKpcNMUgia4EU8TNwdjRdnM9mbMkCvI517L2UDerM",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a6efe983476e54e1ed0f2ba95643bc20@o4511265091551232.ingest.us.sentry.io/4511265094828032"
       }
     }
   },
