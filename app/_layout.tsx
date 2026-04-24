@@ -1,10 +1,21 @@
 import { useEffect } from 'react';
+import { Platform, AppState } from 'react-native';
 import { Stack, useRouter, useSegments, ErrorBoundaryProps } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import { supabase } from '../src/lib/supabase';
 import { useAuthStore } from '../src/store/auth';
 import { useSettingsStore } from '../src/store/settings';
 import { initSentry, Sentry } from '../src/lib/sentry';
 import { ErrorFallback } from '../src/components/ErrorBoundary';
+
+// Handle notifications received while app is foregrounded
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge:  true,
+  }),
+});
 
 // Initialise Sentry as early as possible — before any component renders
 initSentry();
@@ -23,6 +34,17 @@ function RootLayout() {
   // Load persisted settings once on boot
   useEffect(() => {
     loadSettings();
+  }, []);
+
+  // Refresh badge when app comes back to foreground
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        const { profile } = useAuthStore.getState();
+        refreshBadge(profile?.platform_role);
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   useEffect(() => {
@@ -83,6 +105,51 @@ function RootLayout() {
       .eq('id', userId)
       .single();
     setProfile(data);
+    if (data) {
+      registerPushToken(userId);
+      refreshBadge(data.platform_role);
+    }
+  }
+
+  async function registerPushToken(userId: string) {
+    try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+        });
+      }
+      const { status: existing } = await Notifications.getPermissionsAsync();
+      let finalStatus = existing;
+      if (existing !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') return;
+
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      await supabase.from('profiles').update({ expo_push_token: token }).eq('id', userId);
+    } catch {
+      // Unavailable in some environments — fail silently
+    }
+  }
+
+  async function refreshBadge(role?: string) {
+    try {
+      // Only admins/moderators get badge counts for pending applications
+      if (role !== 'super_admin' && role !== 'moderator') {
+        await Notifications.setBadgeCountAsync(0);
+        return;
+      }
+      const { count } = await supabase
+        .from('contributor_applications')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      await Notifications.setBadgeCountAsync(count ?? 0);
+    } catch {
+      // Fail silently
+    }
   }
 
   return (
