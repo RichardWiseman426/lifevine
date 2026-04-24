@@ -84,9 +84,11 @@ export default function TestimoniesScreen() {
     const userState = profile?.location_state?.toLowerCase() ?? '';
 
     const rank = (t: any) => {
-      const org = t.organizations;
-      if (userCity  && org?.city?.toLowerCase()  === userCity)  return 0;
-      if (userState && org?.state?.toLowerCase() === userState) return 1;
+      // Check org location first, then fall back to testimony's own city/state
+      const tCity  = (t.organizations?.city  ?? t.city)?.toLowerCase()  ?? '';
+      const tState = (t.organizations?.state ?? t.state)?.toLowerCase() ?? '';
+      if (userCity  && tCity  === userCity)  return 0;
+      if (userState && tState === userState) return 1;
       return 2;
     };
 

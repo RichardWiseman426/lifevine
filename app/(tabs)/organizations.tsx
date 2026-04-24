@@ -197,6 +197,20 @@ export default function OrganizationsScreen() {
 
           ListHeaderComponent={
             <View style={styles.headerSection}>
+              {/* Location nudge — shown only when city not set */}
+              {!profile?.location_city && (
+                <TouchableOpacity
+                  style={styles.locationNudge}
+                  onPress={() => router.push('/(tabs)/profile')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.locationNudgeText}>
+                    Add your city in Profile to see content near you
+                  </Text>
+                  <Text style={styles.locationNudgeArrow}>→</Text>
+                </TouchableOpacity>
+              )}
+
               {/* Search bar */}
               <View style={styles.searchWrap}>
                 <TextInput
@@ -307,6 +321,14 @@ const styles = StyleSheet.create({
   sectionSub: { fontSize: 12, color: '#C4B9AF', fontWeight: '500' },
 
   carouselRow: { paddingHorizontal: 16, paddingBottom: 4, gap: 12 },
+  locationNudge: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#E8F5E9', borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 10,
+    marginBottom: 12, borderWidth: 1, borderColor: '#C8E6C9',
+  },
+  locationNudgeText: { fontSize: 13, color: '#2D6A4F', fontWeight: '600', flex: 1 },
+  locationNudgeArrow: { fontSize: 16, color: '#2D6A4F', marginLeft: 8 },
   carouselEmpty: {
     marginHorizontal: 16, backgroundColor: '#FFFFFF',
     borderRadius: 16, borderWidth: 1, borderColor: '#E5DDD4',

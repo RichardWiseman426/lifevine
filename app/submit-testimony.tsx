@@ -51,6 +51,8 @@ export default function SubmitTestimonyScreen() {
       category,
       is_anonymous: isAnonymous,
       status: 'pending_review',
+      city:  profile?.location_city  ?? null,
+      state: profile?.location_state ?? null,
     });
     setSubmitting(false);
 
