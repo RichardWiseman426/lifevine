@@ -19,6 +19,16 @@ const CATEGORIES = [
   { value: 'youth',     label: 'Youth' },
 ];
 
+const RECURRENCES = [
+  { value: 'none',     label: 'One-time',  rrule: null },
+  { value: 'weekly',   label: 'Weekly',    rrule: 'FREQ=WEEKLY' },
+  { value: 'biweekly', label: 'Biweekly',  rrule: 'FREQ=WEEKLY;INTERVAL=2' },
+  { value: 'monthly',  label: 'Monthly',   rrule: 'FREQ=MONTHLY' },
+  { value: 'daily',    label: 'Daily',     rrule: 'FREQ=DAILY' },
+];
+
+const TIER_EVENT_LIMITS: Record<string, number> = { free: 1, enhanced: 3, partner: Infinity };
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function parseDateTime(date: string, time: string): string | null {
@@ -136,10 +146,12 @@ export default function EventFormScreen() {
   const [city, setCity]                 = useState('');
   const [state, setState]               = useState('');
   const [maxAttendees, setMaxAttendees] = useState('');
-  const [startDate, setStartDate]       = useState('');
-  const [startTime, setStartTime]       = useState('');
-  const [endDate, setEndDate]           = useState('');
-  const [endTime, setEndTime]           = useState('');
+  const [startDate, setStartDate]         = useState('');
+  const [startTime, setStartTime]         = useState('');
+  const [endDate, setEndDate]             = useState('');
+  const [endTime, setEndTime]             = useState('');
+  const [recurrence, setRecurrence]       = useState<string>('none');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
 
   // Load existing event when editing
   useEffect(() => {
@@ -148,7 +160,7 @@ export default function EventFormScreen() {
       const [evtRes, schedRes] = await Promise.all([
         supabase.from('events').select('*').eq('id', id).single(),
         supabase.from('event_schedules')
-          .select('id, starts_at, ends_at')
+          .select('id, starts_at, ends_at, recurrence, recurrence_end_date')
           .eq('event_id', id)
           .order('created_at', { ascending: true })
           .limit(1)
@@ -179,6 +191,12 @@ export default function EventFormScreen() {
           setEndDate(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
           setEndTime(d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
         }
+        if (schedRes.data.recurrence) {
+          setRecurrence(schedRes.data.recurrence);
+        }
+        if (schedRes.data.recurrence_end_date) {
+          setRecurrenceEndDate(schedRes.data.recurrence_end_date);
+        }
 
         // Get matching occurrence
         const occRes = await supabase
@@ -197,6 +215,37 @@ export default function EventFormScreen() {
     if (!title.trim()) {
       Alert.alert('Title required', 'Please enter a title for this event.');
       return;
+    }
+
+    // ── Tier limit check (create mode only) ──
+    if (!isEdit && orgId) {
+      const tierRes = await supabase
+        .from('organizations')
+        .select('tier')
+        .eq('id', orgId)
+        .single();
+      const tier = (tierRes.data?.tier as string) ?? 'free';
+      const limit = TIER_EVENT_LIMITS[tier] ?? 1;
+
+      if (limit !== Infinity) {
+        const { count } = await supabase
+          .from('events')
+          .select('id', { count: 'exact', head: true })
+          .eq('org_id', orgId)
+          .eq('status', 'approved')
+          .is('deleted_at', null);
+        if ((count ?? 0) >= limit) {
+          Alert.alert(
+            'Plan limit reached',
+            `Your ${tier} plan allows up to ${limit} active event${limit === 1 ? '' : 's'}. Upgrade to add more.`,
+            [
+              { text: 'Not now', style: 'cancel' },
+              { text: 'Upgrade', onPress: () => router.push('/upgrade') },
+            ],
+          );
+          return;
+        }
+      }
     }
 
     const startsAtISO = parseDateTime(startDate, startTime);
@@ -245,12 +294,18 @@ export default function EventFormScreen() {
     }
 
     // Upsert schedule
+    const selectedRecurrence = RECURRENCES.find((r) => r.value === recurrence);
     const schedulePayload: Record<string, any> = {
       event_id: eventId,
-      recurrence: 'none',
+      recurrence,
+      rrule: selectedRecurrence?.rrule ?? null,
       starts_at: startsAtISO,
       ends_at: endsAtISO,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      recurrence_end_date:
+        recurrence !== 'none' && recurrenceEndDate.trim()
+          ? new Date(recurrenceEndDate.trim()).toISOString().split('T')[0]
+          : null,
     };
 
     let sId = scheduleId;
@@ -368,6 +423,27 @@ export default function EventFormScreen() {
               />
             </View>
           </View>
+        </SectionCard>
+
+        {/* ── Recurrence ── */}
+        <SectionCard title="Recurrence">
+          <View style={f.wrap}>
+            <Text style={f.label}>Repeat</Text>
+            <ChipPicker
+              options={RECURRENCES as any}
+              selected={recurrence as any}
+              onSelect={(v) => setRecurrence(v)}
+            />
+          </View>
+          {recurrence !== 'none' && (
+            <Field
+              label="Repeat Until (optional)"
+              value={recurrenceEndDate}
+              onChangeText={setRecurrenceEndDate}
+              placeholder="Dec 31, 2026"
+              hint="Leave blank to repeat indefinitely"
+            />
+          )}
         </SectionCard>
 
         {/* ── Location ── */}

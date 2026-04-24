@@ -116,11 +116,18 @@ export default function ManageOrgScreen() {
                   </View>
                   <Text style={s.chevron}>›</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => confirmDelete('opportunities', o.id, o.title, load)}
-                >
-                  <Text style={s.deleteText}>Delete</Text>
-                </TouchableOpacity>
+                <View style={s.itemActions}>
+                  <TouchableOpacity
+                    onPress={() => router.push(`/opportunity-responses/${o.id}`)}
+                  >
+                    <Text style={s.responsesText}>Responses</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => confirmDelete('opportunities', o.id, o.title, load)}
+                  >
+                    <Text style={s.deleteText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))}
           </View>
@@ -207,5 +214,7 @@ const s = StyleSheet.create({
   badge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
   badgeText: { fontSize: 11, fontWeight: '700', textTransform: 'capitalize' },
   chevron: { fontSize: 20, color: '#C4B9AF' },
+  itemActions: { flexDirection: 'row', gap: 16, marginTop: 2 },
+  responsesText: { fontSize: 12, color: '#2D6A4F', fontWeight: '600' },
   deleteText: { fontSize: 12, color: '#EF4444', fontWeight: '600' },
 });
