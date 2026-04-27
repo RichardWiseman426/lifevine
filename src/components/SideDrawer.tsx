@@ -12,12 +12,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(SCREEN_WIDTH * 0.78, 320);
 
 const NAV_ITEMS = [
-  { label: 'Home',          route: '/(tabs)'                },
-  { label: 'Contributors',  route: '/(tabs)/organizations'  },
-  { label: 'Serve',         route: '/(tabs)/opportunities'  },
-  { label: 'Events',        route: '/(tabs)/events'         },
-  { label: 'Community',     route: '/(tabs)/testimonies'    },
-  { label: 'Profile',       route: '/(tabs)/profile'        },
+  { label: 'Home',         route: '/(tabs)'                  },
+  { label: 'Resources',    route: '/(tabs)/resources'        },
+  { label: 'Get Involved', route: '/(tabs)/get-involved'     },
+  { label: 'Stories',      route: '/(tabs)/stories'          },
+  { label: 'Messages',     route: '/conversations'           },
+  { label: 'Profile',      route: '/(tabs)/profile'          },
 ];
 
 export function SideDrawer() {

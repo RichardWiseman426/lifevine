@@ -91,9 +91,15 @@ function FeaturedCard({ org }: { org: any }) {
             <Text style={featStyles.avatarText}>{initials}</Text>
           </View>
           <View style={featStyles.badges}>
-            <View style={featStyles.featuredPill}>
-              <Text style={featStyles.featuredPillText}>Featured Contributor</Text>
-            </View>
+            {org.is_partner ? (
+              <View style={[featStyles.featuredPill, featStyles.partnerPill]}>
+                <Text style={[featStyles.featuredPillText, featStyles.partnerPillText]}>★ Partner</Text>
+              </View>
+            ) : (
+              <View style={featStyles.featuredPill}>
+                <Text style={featStyles.featuredPillText}>Featured Contributor</Text>
+              </View>
+            )}
             {org.is_verified && (
               <View style={featStyles.verifiedPill}>
                 <Text style={featStyles.verifiedPillText}>✓ Verified</Text>
@@ -272,27 +278,50 @@ export default function HomeScreen() {
   }, []);
 
   // ── Featured contributors ────────────────────────────────────
+  // Enhanced (is_featured) + Partner (is_partner) both appear here.
+  // Partners sort first within the carousel.
+  // Results are state-scoped — no out-of-state orgs on home page.
   useEffect(() => {
     async function load() {
       setLoadingFeatured(true);
-      let query = supabase
+
+      const base = supabase
         .from('organizations')
-        .select('id, name, short_description, city, state, is_verified')
+        .select('id, name, short_description, city, state, is_verified, is_featured, is_partner')
         .eq('is_featured', true)
         .eq('is_active', true)
         .is('deleted_at', null)
-        .limit(8);
+        .order('is_partner', { ascending: false })
+        .order('name')
+        .limit(10);
 
-      if (profile?.location_city) {
-        const { data: local } = await query.eq('city', profile.location_city);
-        if (local && local.length > 0) { setFeatured(local); setLoadingFeatured(false); return; }
+      // Try state-scoped first; fall back to all featured if user has no location
+      let data: any[] | null = null;
+      if (profile?.location_state) {
+        const { data: stateData } = await base.eq('state', profile.location_state);
+        data = stateData ?? [];
+        // If nothing in state, still show nothing — don't leak out-of-state onto home
+      } else {
+        const { data: allData } = await base;
+        data = allData ?? [];
       }
-      const { data } = await query;
-      setFeatured(data ?? []);
+
+      // Sort: partner → city match → state match → rest
+      const city  = profile?.location_city?.toLowerCase()  ?? '';
+      const state = profile?.location_state?.toLowerCase() ?? '';
+      data.sort((a: any, b: any) => {
+        if (a.is_partner !== b.is_partner) return b.is_partner ? 1 : -1;
+        const aCity = a.city?.toLowerCase() === city  ? 0 : 1;
+        const bCity = b.city?.toLowerCase() === city  ? 0 : 1;
+        if (aCity !== bCity) return aCity - bCity;
+        return 0;
+      });
+
+      setFeatured(data);
       setLoadingFeatured(false);
     }
     load();
-  }, [profile?.location_city]);
+  }, [profile?.location_city, profile?.location_state]);
 
   // ── Category carousel ────────────────────────────────────────
   useEffect(() => {
@@ -608,6 +637,8 @@ const featStyles = StyleSheet.create({
   badges: { gap: 8, alignItems: 'flex-end' },
   featuredPill: { backgroundColor: '#FDF3E3', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6, borderWidth: 1, borderColor: '#F0D9B8' },
   featuredPillText: { fontSize: 12, fontWeight: '800', color: '#B8864E', letterSpacing: 0.3 },
+  partnerPill: { backgroundColor: '#1A3A2A', borderColor: '#2D6A4F' },
+  partnerPillText: { color: '#FFFFFF' },
   verifiedPill: { backgroundColor: '#E8F5E9', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 5 },
   verifiedPillText: { fontSize: 12, fontWeight: '700', color: '#2E7D32' },
   name: { fontSize: 26, fontWeight: '800', color: '#1C1917', letterSpacing: -0.6, marginBottom: 12 },

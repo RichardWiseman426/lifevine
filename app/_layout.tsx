@@ -172,6 +172,9 @@ function RootLayout() {
       <Stack.Screen name="manage-org" />
       <Stack.Screen name="opportunity-form" options={{ presentation: 'modal' }} />
       <Stack.Screen name="opportunity-responses" />
+      <Stack.Screen name="browse-opportunities" />
+      <Stack.Screen name="browse-contributors" />
+      <Stack.Screen name="browse-events" />
       <Stack.Screen name="event-form" options={{ presentation: 'modal' }} />
       {/* intent-gate and emergency screens are preserved on disk but unrouted.
           To restore: add Stack.Screen entries here and re-wire routing above. */}

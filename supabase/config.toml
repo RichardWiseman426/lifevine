@@ -25,7 +25,6 @@ enabled = true
 
 [auth]
 enabled = true
-port = 54321
 site_url = "http://localhost:8081"
 additional_redirect_urls = ["https://lifevine.app"]
 jwt_expiry = 3600

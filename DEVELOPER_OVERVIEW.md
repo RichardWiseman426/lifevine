@@ -1,6 +1,6 @@
 # LifeVine — Developer Overview
 
-> **Version:** 1.0.0 MVP  
+> **Version:** 1.1.0  
 > **Stack:** React Native (Expo SDK 54) · Supabase · TypeScript  
 > **Platform:** iOS + Android (shared codebase)
 
@@ -90,19 +90,19 @@ PostgreSQL 15 (RLS on all tables)
 
 ## Database Schema
 
-### Tables (13 migrations deployed)
+### Tables (18 migrations deployed)
 
 | Table | Purpose |
 |---|---|
 | `profiles` | Extends auth.users — display name, avatar, location, platform role |
-| `organizations` | Contributor orgs — church, ministry, counseling, healthcare, nonprofit |
+| `organizations` | Contributor orgs — church, ministry, counseling, healthcare, nonprofit. Includes `is_partner` and `is_featured` boolean flags |
 | `org_members` | User membership in orgs — owner / admin / contributor roles |
 | `org_invitations` | Pending invitations by email + token |
 | `events` | Events posted by orgs |
 | `event_schedules` | Recurrence rules (RFC 5545 RRULE) |
 | `event_occurrences` | Materialized occurrences — what RSVPs attach to |
 | `event_rsvps` | Per-user RSVPs with guest count |
-| `opportunities` | Volunteer/service/prayer/mentorship opportunities |
+| `opportunities` | Volunteer/service/prayer/mentorship/fundraising opportunities |
 | `opportunity_steps` | Ordered action steps per opportunity (powers "How to Help" buttons) |
 | `opportunity_responses` | User responses — pending/accepted/declined/completed |
 | `testimonies` | Community stories — moderated before public |
@@ -228,7 +228,7 @@ Profile Tab → Upgrade card → /upgrade screen
 
 ```
 app/
-├── _layout.tsx                  Root layout — session guard, routing
+├── _layout.tsx                  Root layout — session guard, routing, push notifications
 ├── welcome.tsx                  First-time welcome screen (gradient)
 ├── upgrade.tsx                  Tier pricing + waitlist signup
 ├── about.tsx                    About LifeVine
@@ -244,21 +244,49 @@ app/
 │
 ├── (tabs)/
 │   ├── _layout.tsx              Tab container (tab bar hidden, SideDrawer overlay)
-│   ├── index.tsx                Home — featured orgs, affirmation, new contributors,
-│   │                              activity bar, events near you, stories near you
-│   ├── organizations.tsx        Contributors directory — search, category chips,
-│   │                              near-you carousel, full list
-│   ├── opportunities.tsx        Serve — volunteer/service/prayer opportunities
-│   ├── events.tsx               Events — upcoming, near you carousel + full list
-│   ├── testimonies.tsx          Community stories — category filter, near you, submit CTA
-│   ├── profile.tsx              User profile — avatar, orgs (Edit + Manage buttons),
-│   │                              settings, upgrade card, sign out
-│   └── resources.tsx            Support resources — category filter, crisis first
+│   │                              Active tabs: index, resources, get-involved, stories, profile
+│   │                              Hidden (href:null): organizations, opportunities, events, testimonies
+│   ├── index.tsx                Home — featured orgs carousel (state-filtered), daily affirmation,
+│   │                              new contributor spotlight, activity bar (messages + RSVPs),
+│   │                              events near you, stories near you
+│   ├── resources.tsx            Contributor directory — sectioned horizontal carousels
+│   │                              Churches · Counseling · Medical · Recovery · Outreach
+│   │                              Sort: partner → proximity (city/state) → featured
+│   │                              State-filtered. "Search more [type] →" → browse-contributors
+│   ├── get-involved.tsx         Events + Opportunities by category
+│   │                              Upcoming Events carousel (partner-org first, state-filtered)
+│   │                              Volunteer · Service · Community Needs · Prayer ·
+│   │                              Mentorship · Fundraising carousels
+│   │                              Sort: partner-org → proximity → rest
+│   │                              "Search more [category] →" → browse-opportunities
+│   │                              "Search more events →" → browse-events
+│   ├── stories.tsx              Community testimonies — sectioned carousels by theme
+│   │                              Healing · Provision · Community · Restoration · Salvation
+│   │                              Sort: partner-org stories first → featured → local → recent
+│   │                              Amber "Share Your Story" CTA card at top
+│   └── profile.tsx              User profile — avatar, orgs (Edit + Manage), upgrade, sign out
+│
+├── browse-events.tsx            Full upcoming event list (opened from Get Involved)
+│                                  State-filtered + virtual included
+│                                  Sort: partner-org → city → state → virtual → chronological
+│                                  BackHeader + EmptyState
+├── browse-opportunities.tsx     Category-locked opp list (opened from Get Involved)
+│                                  useLocalSearchParams: { category }
+│                                  State-filtered + remote included
+│                                  Sort: partner-org → city → state → remote → featured → name
+│                                  BackHeader + FlatList
+├── browse-contributors.tsx      Type-locked contributor list (opened from Resources)
+│                                  useLocalSearchParams: { type }
+│                                  State-filtered, supports multi-category types (cats[])
+│                                  Sort: partner → city → state → featured → name
+│                                  Left-colored-border OrgListCard, BackHeader + FlatList
 │
 ├── org/[id].tsx                 Public contributor profile — full public display
 ├── org-edit/[id].tsx            Owner/admin org editor — all sections
 ├── manage-org/[id].tsx          Contributor hub — manage opportunities + events
 ├── opportunity-form.tsx         Create/edit opportunity + step builder
+│                                  Categories: volunteer, service, community_need, prayer,
+│                                              mentorship, fundraising
 ├── event-form.tsx               Create/edit event + schedule + occurrence
 ├── event/[id].tsx               Event detail + RSVP
 ├── opportunity/[id].tsx         Opportunity detail + How to Help steps + respond
@@ -318,8 +346,12 @@ supabase/
     ├── 010_org_extended_fields.sql        pastor fields, social links, services, denomination
     ├── 011_org_donation_url.sql           donation_url on organizations
     ├── 012_tier_partner_and_waitlist.sql  partner tier + tier_upgrade_requests
-    └── 013_contributor_write_policies.sql RLS write policies for event_occurrences
-                                            + opportunity_steps (contributor access)
+    ├── 013_contributor_write_policies.sql RLS write policies for event_occurrences
+    │                                       + opportunity_steps (contributor access)
+    ├── 014–017                            (intermediate patch migrations)
+    └── 018_is_partner.sql                 organizations.is_partner boolean DEFAULT false
+                                            + partial index (is_partner=true, deleted_at IS NULL)
+                                            Powers partner-first sort in all carousels app-wide
 ```
 
 ---
@@ -383,13 +415,19 @@ The `on-signup` Edge Function (Supabase) fires on `auth.users` INSERT and auto-c
 
 Three tiers — billing not live yet, uses waitlist:
 
-| Tier | Price | Key Limits |
+| Tier | Price | Visibility in App |
 |---|---|---|
-| Free | $0 | Photo gallery, 1 event, 1 opportunity, 1 team member |
-| Enhanced | $49/mo | 3 events, 3 opportunities, 5 members, featured placement, donation link |
-| Partner | $99/mo | Up to 25 members, promoted slots, verified badge, direct LifeVine contact |
+| Free | $0 | Listed in carousels, sorted by proximity |
+| Enhanced | $49/mo | Featured badge + priority placement in **Home screen** carousel only |
+| Partner | $99/mo | `★ Partner` badge + **first in every carousel app-wide** (Resources, Get Involved, Stories, Home), verified badge, donation link |
+
+**Sort order in all carousels:** `is_partner DESC → proximity (city match, then state) → is_featured DESC → rest`
+
+**State-level distance filtering:** All carousels only show orgs/events/opportunities within the user's state. Orgs with no state set, remote opportunities, and virtual events are always included. If the user has no state set, everything is shown.
 
 Upgrade flow: `/upgrade` screen → org picker → `tier_upgrade_requests` insert → LifeVine team follows up manually.
+
+`is_partner` is a boolean on `organizations` (migration 018). TypeScript casts use `as any` until types are regenerated post-migration.
 
 ---
 
@@ -524,6 +562,11 @@ Sentry DSN is embedded in `sentry.ts` directly (not an env var).
 | **Waitlist tiers** | Billing not live yet. `tier_upgrade_requests` captures warm leads. LifeVine team follows up manually. |
 | **Single-occurrence events** | MVP event form creates one event_schedule + one event_occurrence. Recurring events exist in schema (pg_cron + rrule) but not exposed in the form yet. |
 | **Zustand over Redux** | Minimal boilerplate, works with Expo, no Context provider wrapping. |
+| **State-level distance proxy** | No GPS library. Uses `state` field match as distance proxy. City match = rank 0, state match = rank 1, no state (national) = included, out-of-state = excluded. |
+| **Sectioned carousels everywhere** | Resources, Get Involved, and Stories all use the same Section pattern: accent-bar header, horizontal FlatList, "Search more →" link to a focused stack screen. |
+| **Dedicated browse screens** | `browse-events`, `browse-opportunities`, `browse-contributors` are category-locked, state-filtered, partner-first. No chips. No generic directory. Each is opened by "Search more →". |
+| **Multi-category contributor types** | Some sections (e.g. Churches) include multiple DB categories (`church`, `ministry`). `cats: string[]` arrays in SECTIONS config handle this — filtered with `.includes()`. |
+| **is_partner `as any` casts** | Until migration 018 is applied and Supabase types regenerated, `is_partner` access uses `(obj as any)?.is_partner`. Safe to clean up post-migration. |
 
 ---
 
@@ -538,4 +581,4 @@ Sentry DSN is embedded in `sentry.ts` directly (not an env var).
 
 ---
 
-*Last updated: April 2026 — LifeVine v1.0.0 MVP*
+*Last updated: April 2026 — LifeVine v1.1.0*

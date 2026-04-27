@@ -15,6 +15,7 @@ export interface Organization {
   country: string;
   is_verified: boolean;
   is_featured: boolean;
+  is_partner: boolean;
   tier: string;
 }
 
@@ -30,7 +31,7 @@ export function useOrganizations(search = '', category = '') {
       setLoading(true);
       let query = supabase
         .from('organizations')
-        .select('id,slug,name,short_description,logo_url,banner_url,category,tags,city,state,country,is_verified,is_featured,tier')
+        .select('id,slug,name,short_description,logo_url,banner_url,category,tags,city,state,country,is_verified,is_featured,is_partner,tier')
         .eq('is_active', true)
         .is('deleted_at', null)
         .order('is_featured', { ascending: false })
@@ -45,7 +46,7 @@ export function useOrganizations(search = '', category = '') {
 
       const { data, error } = await query.limit(50);
       if (!cancelled) {
-        setOrgs(data ?? []);
+        setOrgs((data as unknown as Organization[]) ?? []);
         setError(error?.message ?? null);
         setLoading(false);
       }
@@ -69,7 +70,7 @@ export function useOrganization(id: string) {
       .eq('id', id)
       .single()
       .then(({ data }) => {
-        setOrg(data);
+        setOrg(data as unknown as Organization);
         setLoading(false);
       });
   }, [id]);

@@ -17,6 +17,7 @@ const CATEGORIES = [
   { value: 'community_need', label: 'Community Need' },
   { value: 'prayer',         label: 'Prayer' },
   { value: 'mentorship',     label: 'Mentorship' },
+  { value: 'fundraising',    label: 'Fundraising / Donations' },
 ];
 
 const STATUSES = [

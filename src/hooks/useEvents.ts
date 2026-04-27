@@ -39,7 +39,7 @@ export function useUpcomingEvents() {
       .select(`
         id,starts_at,ends_at,status,override_title,rsvp_count,
         events(id,title,short_description,cover_image_url,category,is_virtual,city,state,
-          organizations(name,logo_url,slug)
+          organizations(name,logo_url,slug,is_partner)
         )
       `)
       .eq('status', 'scheduled')

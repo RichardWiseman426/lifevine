@@ -75,12 +75,29 @@ That's it. No native build required for development — runs in Expo Go.
 LifeVine/
 ├── app/                           Expo Router — every file is a screen
 │   ├── (auth)/                    Sign in, sign up, forgot password
-│   ├── (tabs)/                    Main app tabs (home, orgs, serve, events, community, profile)
+│   ├── (tabs)/                    Main tab screens (SideDrawer navigation, no tab bar)
+│   │   ├── index.tsx              Home — featured orgs, affirmation, new contributors,
+│   │   │                            activity bar, events near you, stories near you
+│   │   ├── resources.tsx          Contributor directory — sectioned carousels by type
+│   │   │                            (Churches, Counseling, Medical, Recovery, Outreach)
+│   │   ├── get-involved.tsx       Events + Opportunities — carousels per category
+│   │   │                            (Volunteer, Service, Community Needs, Prayer,
+│   │   │                             Mentorship, Fundraising) + Upcoming Events
+│   │   ├── stories.tsx            Community testimonies — carousels by theme
+│   │   │                            (Healing, Provision, Community, Restoration, Salvation)
+│   │   └── profile.tsx            User profile — avatar, orgs, settings, upgrade, sign out
+│   │
+│   ├── browse-events.tsx          Full event list — opened from "Search more events"
+│   ├── browse-opportunities.tsx   Category-locked opp list — from "Search more [type]"
+│   ├── browse-contributors.tsx    Type-locked contributor list — from "Search more [type]"
 │   ├── legal/                     Terms, privacy, donation policy
 │   ├── org/[id].tsx               Public contributor profile
 │   ├── org-edit/[id].tsx          Owner/admin org editor
-│   ├── event/[id].tsx             Event detail
-│   ├── opportunity/[id].tsx       Volunteer opportunity detail
+│   ├── manage-org/[id].tsx        Contributor hub — manage opps + events
+│   ├── opportunity-form.tsx       Create/edit opportunity + step builder
+│   ├── event-form.tsx             Create/edit event
+│   ├── event/[id].tsx             Event detail + RSVP
+│   ├── opportunity/[id].tsx       Opportunity detail + How to Help steps
 │   ├── testimony/[id].tsx         Story detail
 │   ├── conversation/[id].tsx      Message thread (Realtime)
 │   ├── resource/[id].tsx          Support resource detail
@@ -89,7 +106,6 @@ LifeVine/
 │   ├── conversations.tsx          Messages inbox
 │   ├── support.tsx                Support LifeVine (donation page)
 │   ├── about.tsx                  About / mission
-│   ├── emergency.tsx              Crisis resources
 │   ├── admin.tsx                  Super admin / moderation panel
 │   └── _layout.tsx                Root layout + session guard
 │
@@ -97,11 +113,11 @@ LifeVine/
 │   ├── components/                Shared UI (SideDrawer, BackHeader, ScreenHeader, LegalScreen)
 │   ├── hooks/                     Data layer (useProfile, useOrganizations, useEvents, etc.)
 │   ├── lib/                       supabase client + image upload helper
-│   ├── store/                     Zustand stores (auth, drawer, settings, intent)
+│   ├── store/                     Zustand stores (auth, drawer, settings)
 │   └── types/                     TypeScript database types
 │
 ├── supabase/
-│   └── migrations/                011 SQL migration files — schema is authoritative here
+│   └── migrations/                018 SQL migration files — schema is authoritative here
 │
 ├── assets/                        Brand images, icons, splash
 ├── app.json                       Expo config
@@ -122,14 +138,16 @@ Core features shipped in MVP v1.0.0:
 |---|---|
 | Authentication (email + password) | `app/(auth)/` |
 | User profile with avatar, city/state, org membership | `app/(tabs)/profile.tsx` |
-| Contributor directory (churches, counseling, healthcare, support) | `app/(tabs)/organizations.tsx` |
+| Contributor directory — sectioned carousels (Churches, Counseling, Medical, Recovery, Outreach) | `app/(tabs)/resources.tsx` |
+| Full contributor list per type, state-filtered, partner-first | `app/browse-contributors.tsx` |
 | Full contributor profile editor (logo, banner, mission, services, pastor, gallery, donation link) | `app/org-edit/[id].tsx` |
-| Volunteer opportunities with proximity sort | `app/(tabs)/opportunities.tsx` |
-| Events with proximity sort + featured carousel | `app/(tabs)/events.tsx` |
-| Community testimonies with moderation queue | `app/(tabs)/testimonies.tsx` |
-| Support resources (crisis, mental health, housing, etc.) | `app/(tabs)/resources.tsx` |
+| Get Involved — events carousel + opportunity carousels by category (6 types incl. Fundraising) | `app/(tabs)/get-involved.tsx` |
+| Full event list, state-filtered, partner-first | `app/browse-events.tsx` |
+| Full opportunity list per category, state-filtered, partner-first | `app/browse-opportunities.tsx` |
+| Community testimonies — sectioned carousels by theme, share CTA | `app/(tabs)/stories.tsx` |
+| Support resources (crisis, mental health, housing, etc.) | `app/resource/[id].tsx` |
 | Context-aware messaging (user ↔ contributor) with Realtime | `app/conversations.tsx` + `app/conversation/[id].tsx` |
-| Donation link on every contributor profile | `app/org/[id].tsx` (💛 Give button) |
+| Donation link on every contributor profile | `app/org/[id].tsx` |
 | Platform support donations (Stripe Payment Link) | `app/support.tsx` |
 | Legal policies (Terms, Privacy, Donations) | `app/legal/` |
 | Admin/moderation surface | `app/admin.tsx` |
@@ -169,4 +187,4 @@ Product owner: Richard — see git history for commit contact info.
 
 ---
 
-*LifeVine v1.0.0 — April 2026*
+*LifeVine v1.1.0 — April 2026*

@@ -44,7 +44,7 @@ export function useOpportunities(category = '') {
           id,title,short_description,category,tags,is_remote,city,state,
           spots_total,spots_filled,commitment_description,starts_at,ends_at,
           is_featured,status,contact_name,contact_email,contact_phone,org_id,
-          organizations(name,logo_url,slug)
+          organizations(name,logo_url,slug,is_partner)
         `)
         .eq('status', 'open')
         .is('deleted_at', null)

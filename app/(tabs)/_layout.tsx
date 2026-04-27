@@ -19,13 +19,16 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' },
         }}
       >
-        <Tabs.Screen name="index"         options={{ title: 'Home'          }} />
-        <Tabs.Screen name="organizations" options={{ title: 'Contributors'  }} />
-        <Tabs.Screen name="opportunities" options={{ title: 'Serve'         }} />
-        <Tabs.Screen name="events"        options={{ title: 'Events'        }} />
-        <Tabs.Screen name="testimonies"   options={{ title: 'Community'     }} />
-        <Tabs.Screen name="profile"       options={{ title: 'Profile'       }} />
-        <Tabs.Screen name="resources"     options={{ href: null             }} />
+        <Tabs.Screen name="index"          options={{ title: 'Home'         }} />
+        <Tabs.Screen name="resources"      options={{ title: 'Resources'    }} />
+        <Tabs.Screen name="get-involved"   options={{ title: 'Get Involved' }} />
+        <Tabs.Screen name="stories"        options={{ title: 'Stories'      }} />
+        <Tabs.Screen name="profile"        options={{ title: 'Profile'      }} />
+        {/* Legacy screens — still routable from detail pages, hidden from tab nav */}
+        <Tabs.Screen name="organizations"  options={{ href: null }} />
+        <Tabs.Screen name="opportunities"  options={{ href: null }} />
+        <Tabs.Screen name="events"         options={{ href: null }} />
+        <Tabs.Screen name="testimonies"    options={{ href: null }} />
       </Tabs>
 
       {/* Drawer lives here so it overlays all tab screens */}

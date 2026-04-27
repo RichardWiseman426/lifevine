@@ -227,4 +227,4 @@ eas build:list
 
 ---
 
-*LifeVine v1.0.0 — EAS Build / TestFlight Guide*
+*LifeVine v1.1.0 — EAS Build / TestFlight Guide*
