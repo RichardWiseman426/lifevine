@@ -71,10 +71,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     alignSelf: 'flex-start',
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#F0D9BC',
   },
-  featuredText: { fontSize: 11, color: '#B8864E', fontWeight: '700', letterSpacing: 0.3 },
+  featuredText: { fontSize: 11, color: '#B8864E', fontWeight: '800', letterSpacing: 0.3 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   chip: {
     backgroundColor: '#E2F0E8',

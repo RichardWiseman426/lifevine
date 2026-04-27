@@ -41,8 +41,8 @@ function StoryCard({ testimony: t, accentColor }: { testimony: any; accentColor:
       <View style={storyCard.body}>
         {/* Featured badge */}
         {t.is_featured && (
-          <View style={[storyCard.featuredBadge, { backgroundColor: accentColor + '18', borderColor: accentColor + '40' }]}>
-            <Text style={[storyCard.featuredText, { color: accentColor }]}>★ Featured</Text>
+          <View style={storyCard.featuredBadge}>
+            <Text style={storyCard.featuredText}>Featured</Text>
           </View>
         )}
 
@@ -267,9 +267,9 @@ const storyCard = StyleSheet.create({
   featuredBadge: {
     alignSelf: 'flex-start', borderRadius: 999,
     paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, marginBottom: 9,
+    backgroundColor: '#FDF3E3', marginBottom: 9,
   },
-  featuredText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.3 },
+  featuredText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.3, color: '#B8864E' },
   title:   { fontSize: 15, fontWeight: '800', color: '#1C1917', marginBottom: 7, lineHeight: 20, letterSpacing: -0.2 },
   excerpt: { fontSize: 13, color: '#57534E', lineHeight: 19, marginBottom: 12 },
   footer:  { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },

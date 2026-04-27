@@ -55,8 +55,8 @@ function OrgCarouselCard({ org, accentColor }: { org: any; accentColor: string }
       <View style={orgCard.body}>
         {/* Featured badge */}
         {org.is_featured && (
-          <View style={[orgCard.featuredBadge, { backgroundColor: accentColor + '18', borderColor: accentColor + '40' }]}>
-            <Text style={[orgCard.featuredText, { color: accentColor }]}>★ Featured</Text>
+          <View style={orgCard.featuredBadge}>
+            <Text style={orgCard.featuredText}>Featured Contributor</Text>
           </View>
         )}
 
@@ -70,7 +70,7 @@ function OrgCarouselCard({ org, accentColor }: { org: any; accentColor: string }
             </View>
           )}
           {org.is_verified && (
-            <View style={[orgCard.verified, { backgroundColor: accentColor }]}>
+            <View style={orgCard.verified}>
               <Text style={orgCard.verifiedText}>✓</Text>
             </View>
           )}
@@ -288,9 +288,9 @@ const orgCard = StyleSheet.create({
   featuredBadge: {
     alignSelf: 'flex-start', borderRadius: 999,
     paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, marginBottom: 10,
+    backgroundColor: '#FDF3E3', marginBottom: 10,
   },
-  featuredText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.3 },
+  featuredText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.3, color: '#B8864E' },
   logoRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10,
   },
@@ -303,6 +303,7 @@ const orgCard = StyleSheet.create({
   verified: {
     width: 16, height: 16, borderRadius: 8,
     alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#2D6A4F',
   },
   verifiedText: { color: '#fff', fontSize: 8, fontWeight: '800' },
   name:     { fontSize: 14, fontWeight: '800', color: '#1C1917', marginBottom: 7, lineHeight: 19, letterSpacing: -0.2 },

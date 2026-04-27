@@ -70,12 +70,12 @@ function OrgListCard({ org }: { org: any }) {
             </View>
           )}
           {!org.is_partner && org.is_featured && (
-            <View style={[card.featuredBadge, { backgroundColor: color + '18', borderColor: color + '40' }]}>
-              <Text style={[card.featuredText, { color }]}>Featured</Text>
+            <View style={card.featuredBadge}>
+              <Text style={card.featuredText}>Featured Contributor</Text>
             </View>
           )}
           {org.is_verified && (
-            <View style={[card.verified, { backgroundColor: color }]}>
+            <View style={card.verified}>
               <Text style={card.verifiedText}>✓</Text>
             </View>
           )}
@@ -209,12 +209,14 @@ const card = StyleSheet.create({
   },
   partnerText:  { fontSize: 10, fontWeight: '800', color: '#FFFFFF' },
   featuredBadge:{
-    borderRadius: 999, paddingHorizontal: 7, paddingVertical: 2, borderWidth: 1,
+    borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
+    backgroundColor: '#FDF3E3',
   },
-  featuredText: { fontSize: 10, fontWeight: '700' },
+  featuredText: { fontSize: 10, fontWeight: '700', color: '#B8864E' },
   verified: {
     width: 16, height: 16, borderRadius: 8,
     alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#2D6A4F',
   },
   verifiedText: { color: '#fff', fontSize: 8, fontWeight: '800' },
   metaRow:   { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },

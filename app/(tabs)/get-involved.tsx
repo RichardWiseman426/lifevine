@@ -446,9 +446,8 @@ const oppCard = StyleSheet.create({
   featuredBadge: {
     backgroundColor: '#FDF3E3', borderRadius: 999,
     paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, borderColor: '#F0D9BC',
   },
-  featuredText: { fontSize: 10, color: '#B8864E', fontWeight: '700' },
+  featuredText: { fontSize: 10, color: '#B8864E', fontWeight: '800', letterSpacing: 0.3 },
   spots:        { fontSize: 11, color: '#78716C', fontWeight: '500' },
   spotsUrgent:  { color: '#B91C1C', fontWeight: '700' },
   title:        { fontSize: 14, fontWeight: '800', color: '#1C1917', marginBottom: 4, lineHeight: 19, letterSpacing: -0.2 },
