@@ -1,6 +1,6 @@
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  ActivityIndicator, Alert,
+  ActivityIndicator, Alert, Modal, ScrollView, Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -35,6 +35,7 @@ function TabBar({
   const tabs = [
     { key: 'applications', label: 'Applications' },
     { key: 'moderation',   label: 'Moderation'   },
+    { key: 'requests',     label: 'Requests'      },
   ];
   return (
     <View style={tabStyles.bar}>
@@ -59,11 +60,124 @@ function TabBar({
   );
 }
 
+// ── Full application detail modal ────────────────────────────────
+function AppDetailModal({
+  app,
+  visible,
+  onClose,
+  onDecision,
+}: {
+  app: any | null;
+  visible: boolean;
+  onClose: () => void;
+  onDecision?: (app: any, decision: 'approved' | 'rejected') => void;
+}) {
+  if (!app) return null;
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <SafeAreaView style={modal.safe} edges={['top', 'bottom']}>
+        {/* Header */}
+        <View style={modal.header}>
+          <Text style={modal.headerTitle}>Application Detail</Text>
+          <TouchableOpacity onPress={onClose} style={modal.closeBtn} hitSlop={10}>
+            <Text style={modal.closeText}>✕</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView contentContainerStyle={modal.body} showsVerticalScrollIndicator={false}>
+          {/* Status pill */}
+          <View style={[modal.statusPill, modal[`status_${app.status}` as keyof typeof modal] as any]}>
+            <Text style={modal.statusText}>{app.status?.toUpperCase()}</Text>
+          </View>
+
+          {/* Org type + date */}
+          <View style={modal.metaRow}>
+            <View style={styles.typeChip}>
+              <Text style={styles.typeChipText}>{ORG_TYPE_LABELS[app.org_type] ?? app.org_type}</Text>
+            </View>
+            <Text style={modal.date}>Applied {formatDate(app.created_at)}</Text>
+          </View>
+
+          {/* Org name */}
+          <Text style={modal.orgName}>{app.org_name}</Text>
+          {app.denomination ? <Text style={modal.denom}>{app.denomination}</Text> : null}
+
+          {/* Location */}
+          {(app.city || app.state) ? (
+            <Text style={modal.location}>
+              📍 {[app.city, app.state].filter(Boolean).join(', ')}
+            </Text>
+          ) : null}
+
+          {/* Website */}
+          {app.website_url ? (
+            <Text style={modal.website}>🌐 {app.website_url}</Text>
+          ) : null}
+
+          {/* Description */}
+          <View style={modal.section}>
+            <Text style={modal.sectionLabel}>ABOUT THIS ORGANIZATION</Text>
+            <Text style={modal.sectionBody}>{app.description ?? '—'}</Text>
+          </View>
+
+          {/* Usage intent */}
+          {app.usage_intent ? (
+            <View style={modal.section}>
+              <Text style={modal.sectionLabel}>HOW THEY PLAN TO USE LIFEVINE</Text>
+              <Text style={modal.sectionBody}>{app.usage_intent}</Text>
+            </View>
+          ) : null}
+
+          {/* Contact */}
+          <View style={[modal.section, modal.contactBox]}>
+            <Text style={modal.sectionLabel}>PRIMARY CONTACT</Text>
+            <Text style={modal.contactName}>{app.contact_name}</Text>
+            <Text style={modal.contactDetail}>{app.contact_email}</Text>
+            {app.contact_phone ? (
+              <Text style={modal.contactDetail}>{app.contact_phone}</Text>
+            ) : null}
+          </View>
+
+          {/* Review info if already decided */}
+          {app.reviewed_at ? (
+            <Text style={modal.reviewed}>Reviewed {formatDate(app.reviewed_at)}</Text>
+          ) : null}
+        </ScrollView>
+
+        {/* Action buttons — only for pending */}
+        {app.status === 'pending' && onDecision && (
+          <View style={modal.footer}>
+            <TouchableOpacity
+              style={modal.rejectBtn}
+              onPress={() => { onClose(); setTimeout(() => onDecision(app, 'rejected'), 300); }}
+            >
+              <Text style={modal.rejectText}>Reject</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={modal.approveBtn}
+              onPress={() => { onClose(); setTimeout(() => onDecision(app, 'approved'), 300); }}
+            >
+              <Text style={modal.approveText}>Approve</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
 // ── Applications panel ───────────────────────────────────────────
 function ApplicationsPanel() {
-  const [apps, setApps]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter]   = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [apps, setApps]           = useState<any[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [filter, setFilter]       = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [selected, setSelected]   = useState<any | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -77,6 +191,11 @@ function ApplicationsPanel() {
   }, [filter]);
 
   useEffect(() => { load(); }, [load]);
+
+  function openDetail(app: any) {
+    setSelected(app);
+    setModalOpen(true);
+  }
 
   async function handleDecision(app: any, decision: 'approved' | 'rejected') {
     Alert.alert(
@@ -102,6 +221,7 @@ function ApplicationsPanel() {
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Filter chips */}
       <View style={appStyles.filterRow}>
         {(['pending', 'approved', 'rejected'] as const).map((f) => (
           <TouchableOpacity
@@ -132,7 +252,11 @@ function ApplicationsPanel() {
           refreshing={loading}
           contentContainerStyle={styles.list}
           renderItem={({ item: app }) => (
-            <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => openDetail(app)}
+              activeOpacity={0.75}
+            >
               <View style={styles.cardHeader}>
                 <View style={styles.typeChip}>
                   <Text style={styles.typeChipText}>
@@ -152,44 +276,40 @@ function ApplicationsPanel() {
                 </Text>
               ) : null}
 
-              <Text style={appStyles.desc} numberOfLines={3}>{app.description}</Text>
+              {/* Description — 2 lines only; tap card for full */}
+              <Text style={appStyles.desc} numberOfLines={2}>{app.description}</Text>
 
-              <View style={appStyles.contactBlock}>
-                <Text style={appStyles.sectionMeta}>Primary Contact</Text>
-                <Text style={appStyles.contactName}>{app.contact_name}</Text>
-                <Text style={appStyles.contactDetail}>{app.contact_email}</Text>
-                {app.contact_phone ? (
-                  <Text style={appStyles.contactDetail}>{app.contact_phone}</Text>
-                ) : null}
+              <View style={appStyles.tapHint}>
+                <Text style={appStyles.tapHintText}>Tap to view full application →</Text>
               </View>
-
-              {app.usage_intent ? (
-                <View style={appStyles.intentBlock}>
-                  <Text style={appStyles.sectionMeta}>How they plan to use LifeVine</Text>
-                  <Text style={appStyles.intentText} numberOfLines={3}>{app.usage_intent}</Text>
-                </View>
-              ) : null}
 
               {filter === 'pending' && (
                 <View style={styles.actions}>
                   <TouchableOpacity
                     style={styles.rejectBtn}
-                    onPress={() => handleDecision(app, 'rejected')}
+                    onPress={(e) => { e.stopPropagation?.(); handleDecision(app, 'rejected'); }}
                   >
                     <Text style={styles.rejectBtnText}>Reject</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.approveBtn}
-                    onPress={() => handleDecision(app, 'approved')}
+                    onPress={(e) => { e.stopPropagation?.(); handleDecision(app, 'approved'); }}
                   >
                     <Text style={styles.approveBtnText}>Approve</Text>
                   </TouchableOpacity>
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
           )}
         />
       )}
+
+      <AppDetailModal
+        app={selected}
+        visible={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onDecision={filter === 'pending' ? handleDecision : undefined}
+      />
     </View>
   );
 }
@@ -283,6 +403,149 @@ function ModerationPanel() {
   );
 }
 
+// ── Community Requests panel ─────────────────────────────────────
+type RequestRow = {
+  city: string;
+  state: string;
+  count: number;
+  latest: string;
+  outreached: boolean;
+  ids: string[];
+};
+
+function CommunityRequestsPanel() {
+  const [rows, setRows]       = useState<RequestRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { profile }           = useAuthStore();
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await (supabase as any)
+      .from('community_requests')
+      .select('id, city, state, created_at, outreached_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      setLoading(false);
+      return;
+    }
+
+    // Group by city + state
+    const map = new Map<string, RequestRow>();
+    for (const r of (data ?? [])) {
+      const key = `${r.city.toLowerCase()}|${r.state.toLowerCase()}`;
+      if (!map.has(key)) {
+        map.set(key, {
+          city: r.city,
+          state: r.state,
+          count: 0,
+          latest: r.created_at,
+          outreached: !!r.outreached_at,
+          ids: [],
+        });
+      }
+      const entry = map.get(key)!;
+      entry.count += 1;
+      entry.ids.push(r.id);
+      // outreached only if ALL requests in that city are outreached
+      if (!r.outreached_at) entry.outreached = false;
+      if (r.created_at > entry.latest) entry.latest = r.created_at;
+    }
+
+    const sorted = Array.from(map.values()).sort((a, b) => {
+      // Un-outreached first, then by count desc
+      if (a.outreached !== b.outreached) return a.outreached ? 1 : -1;
+      return b.count - a.count;
+    });
+
+    setRows(sorted);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function markOutreached(row: RequestRow) {
+    Alert.alert(
+      'Mark as Outreached?',
+      `${row.city}, ${row.state} — ${row.count} request${row.count !== 1 ? 's' : ''}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Mark Outreached',
+          onPress: async () => {
+            const now = new Date().toISOString();
+            const { error } = await (supabase as any)
+              .from('community_requests')
+              .update({ outreached_at: now, outreached_by: profile?.id })
+              .in('id', row.ids);
+            if (error) Alert.alert('Error', error.message);
+            else load();
+          },
+        },
+      ]
+    );
+  }
+
+  if (loading) {
+    return <View style={styles.centered}><ActivityIndicator color="#2D6A4F" size="large" /></View>;
+  }
+
+  if (rows.length === 0) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.allClearIcon}>📍</Text>
+        <Text style={styles.allClear}>No requests yet</Text>
+        <Text style={styles.allClearSub}>
+          When users request support for their city, it will appear here.
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={rows}
+      keyExtractor={(r) => `${r.city}|${r.state}`}
+      onRefresh={load}
+      refreshing={loading}
+      contentContainerStyle={styles.list}
+      ListHeaderComponent={
+        <Text style={reqStyles.total}>
+          {rows.length} location{rows.length !== 1 ? 's' : ''} · {rows.reduce((s, r) => s + r.count, 0)} total requests
+        </Text>
+      }
+      renderItem={({ item: row }) => (
+        <View style={[styles.card, row.outreached && reqStyles.cardDone]}>
+          <View style={reqStyles.cardTop}>
+            <View style={reqStyles.locationWrap}>
+              <Text style={reqStyles.location}>{row.city}, {row.state}</Text>
+              <Text style={reqStyles.latest}>Last: {formatDate(row.latest)}</Text>
+            </View>
+            <View style={reqStyles.countBadge}>
+              <Text style={reqStyles.countText}>{row.count}</Text>
+              <Text style={reqStyles.countSub}>req{row.count !== 1 ? 's' : ''}</Text>
+            </View>
+          </View>
+
+          {row.outreached ? (
+            <View style={reqStyles.outreachedPill}>
+              <Text style={reqStyles.outreachedText}>✓ Outreached</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={reqStyles.outreachBtn}
+              onPress={() => markOutreached(row)}
+              activeOpacity={0.75}
+            >
+              <Text style={reqStyles.outreachBtnText}>Mark as Outreached</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+    />
+  );
+}
+
 // ── Root ─────────────────────────────────────────────────────────
 export default function AdminScreen() {
   const { profile } = useAuthStore();
@@ -291,7 +554,7 @@ export default function AdminScreen() {
 
   useEffect(() => {
     async function loadCounts() {
-      const [{ count: appCount }, { data: modData }] = await Promise.all([
+      const [{ count: appCount }, { data: modData }, { data: reqData }] = await Promise.all([
         supabase
           .from('contributor_applications')
           .select('id', { count: 'exact', head: true })
@@ -300,10 +563,15 @@ export default function AdminScreen() {
           .from('moderation_queue')
           .select('id')
           .eq('status', 'pending_review'),
+        (supabase as any)
+          .from('community_requests')
+          .select('id')
+          .is('outreached_at', null),
       ]);
       setCounts({
         applications: appCount ?? 0,
         moderation: (modData ?? []).length,
+        requests: (reqData ?? []).length,
       });
     }
     loadCounts();
@@ -326,7 +594,9 @@ export default function AdminScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BackHeader title="Admin Dashboard" />
       <TabBar active={activeTab} onChange={setActiveTab} counts={counts} />
-      {activeTab === 'applications' ? <ApplicationsPanel /> : <ModerationPanel />}
+      {activeTab === 'applications' && <ApplicationsPanel />}
+      {activeTab === 'moderation'   && <ModerationPanel />}
+      {activeTab === 'requests'     && <CommunityRequestsPanel />}
     </SafeAreaView>
   );
 }
@@ -336,21 +606,21 @@ const tabStyles = StyleSheet.create({
   bar: {
     flexDirection: 'row', backgroundColor: '#fff',
     borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
   tab: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 14, marginRight: 4,
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
+    paddingVertical: 14,
     borderBottomWidth: 2, borderBottomColor: 'transparent',
   },
   tabActive: { borderBottomColor: '#2D6A4F' },
-  label: { fontSize: 14, fontWeight: '600', color: '#aaa' },
+  label: { fontSize: 13, fontWeight: '600', color: '#aaa' },
   labelActive: { color: '#2D6A4F' },
   badge: {
     backgroundColor: '#e53e3e', borderRadius: 10,
-    paddingHorizontal: 6, paddingVertical: 1, minWidth: 18, alignItems: 'center',
+    paddingHorizontal: 5, paddingVertical: 1, minWidth: 17, alignItems: 'center',
   },
-  badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
 });
 
 // ── Application card styles ──────────────────────────────────────
@@ -365,14 +635,90 @@ const appStyles = StyleSheet.create({
   filterChipTextActive: { color: '#2D6A4F' },
   orgName: { fontSize: 17, fontWeight: '800', color: '#1a1a1a', marginBottom: 2 },
   denom: { fontSize: 12, color: '#2D6A4F', fontWeight: '600', marginBottom: 4 },
-  location: { fontSize: 12, color: '#aaa', marginBottom: 10 },
-  desc: { fontSize: 13, color: '#555', lineHeight: 20, marginBottom: 12 },
-  contactBlock: { backgroundColor: '#f9f9f9', borderRadius: 10, padding: 12, marginBottom: 10 },
-  intentBlock: { backgroundColor: '#f9f9f9', borderRadius: 10, padding: 12, marginBottom: 12 },
-  sectionMeta: { fontSize: 10, fontWeight: '800', color: '#aaa', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 },
-  contactName: { fontSize: 14, fontWeight: '700', color: '#1a1a1a' },
-  contactDetail: { fontSize: 13, color: '#555', marginTop: 2 },
-  intentText: { fontSize: 13, color: '#555', lineHeight: 20 },
+  location: { fontSize: 12, color: '#aaa', marginBottom: 8 },
+  desc: { fontSize: 13, color: '#555', lineHeight: 20, marginBottom: 8 },
+  tapHint: { marginBottom: 10 },
+  tapHintText: { fontSize: 12, color: '#2D6A4F', fontWeight: '600' },
+});
+
+// ── Community Requests styles ────────────────────────────────────
+const reqStyles = StyleSheet.create({
+  total: { fontSize: 12, color: '#aaa', fontWeight: '600', marginBottom: 4, textAlign: 'center' },
+  cardDone: { opacity: 0.55 },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },
+  locationWrap: { flex: 1 },
+  location: { fontSize: 16, fontWeight: '800', color: '#1a1a1a', marginBottom: 2 },
+  latest: { fontSize: 12, color: '#aaa' },
+  countBadge: {
+    backgroundColor: '#e8f5e9', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6,
+    alignItems: 'center', minWidth: 52,
+  },
+  countText: { fontSize: 20, fontWeight: '900', color: '#2D6A4F', lineHeight: 24 },
+  countSub: { fontSize: 10, color: '#2D6A4F', fontWeight: '600' },
+  outreachBtn: {
+    backgroundColor: '#2D6A4F', borderRadius: 10,
+    paddingVertical: 10, alignItems: 'center',
+  },
+  outreachBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  outreachedPill: {
+    backgroundColor: '#e8f5e9', borderRadius: 10,
+    paddingVertical: 8, alignItems: 'center',
+  },
+  outreachedText: { color: '#2D6A4F', fontWeight: '700', fontSize: 13 },
+});
+
+// ── Modal styles ─────────────────────────────────────────────────
+const modal = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#fff' },
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingVertical: 14,
+    borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+  },
+  headerTitle: { fontSize: 17, fontWeight: '800', color: '#1a1a1a' },
+  closeBtn: { padding: 6 },
+  closeText: { fontSize: 18, color: '#888', fontWeight: '600' },
+  body: { padding: 20, paddingBottom: 40 },
+  statusPill: {
+    alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4,
+    marginBottom: 14,
+  },
+  status_pending: { backgroundColor: '#FEF3C7' },
+  status_approved: { backgroundColor: '#D1FAE5' },
+  status_rejected: { backgroundColor: '#FEE2E2' },
+  statusText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  date: { fontSize: 12, color: '#aaa' },
+  orgName: { fontSize: 22, fontWeight: '900', color: '#1a1a1a', marginBottom: 4, letterSpacing: -0.3 },
+  denom: { fontSize: 13, color: '#2D6A4F', fontWeight: '700', marginBottom: 6 },
+  location: { fontSize: 13, color: '#888', marginBottom: 6 },
+  website: { fontSize: 13, color: '#2D6A4F', marginBottom: 16 },
+  section: { marginBottom: 20 },
+  contactBox: { backgroundColor: '#f9f9f9', borderRadius: 12, padding: 14 },
+  sectionLabel: {
+    fontSize: 10, fontWeight: '800', color: '#aaa',
+    letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8,
+  },
+  sectionBody: { fontSize: 14, color: '#333', lineHeight: 22 },
+  contactName: { fontSize: 15, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },
+  contactDetail: { fontSize: 14, color: '#555', marginBottom: 2 },
+  reviewed: { fontSize: 12, color: '#aaa', textAlign: 'center', marginTop: 8 },
+  footer: {
+    flexDirection: 'row', gap: 12,
+    paddingHorizontal: 20, paddingVertical: 16,
+    borderTopWidth: 1, borderTopColor: '#f0f0f0',
+    backgroundColor: '#fff',
+  },
+  rejectBtn: {
+    flex: 1, borderWidth: 1.5, borderColor: '#e53e3e',
+    borderRadius: 12, paddingVertical: 13, alignItems: 'center',
+  },
+  rejectText: { color: '#e53e3e', fontWeight: '700', fontSize: 15 },
+  approveBtn: {
+    flex: 1, backgroundColor: '#2D6A4F',
+    borderRadius: 12, paddingVertical: 13, alignItems: 'center',
+  },
+  approveText: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });
 
 // ── Shared styles ────────────────────────────────────────────────
@@ -390,7 +736,7 @@ const styles = StyleSheet.create({
   typeChipText: { color: '#2D6A4F', fontSize: 12, fontWeight: '700' },
   cardDate: { fontSize: 12, color: '#aaa' },
   preview: { fontSize: 14, color: '#333', lineHeight: 20, marginBottom: 14 },
-  actions: { flexDirection: 'row', gap: 10 },
+  actions: { flexDirection: 'row', gap: 10, marginTop: 4 },
   rejectBtn: {
     flex: 1, borderWidth: 1.5, borderColor: '#e53e3e',
     borderRadius: 10, paddingVertical: 10, alignItems: 'center',
@@ -405,5 +751,5 @@ const styles = StyleSheet.create({
   backLink: { fontSize: 15, color: '#2D6A4F', fontWeight: '600' },
   allClearIcon: { fontSize: 48, marginBottom: 12 },
   allClear: { fontSize: 20, fontWeight: '800', color: '#1a1a1a', marginBottom: 6 },
-  allClearSub: { fontSize: 14, color: '#888' },
+  allClearSub: { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 20 },
 });
