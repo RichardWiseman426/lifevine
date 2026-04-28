@@ -35,7 +35,7 @@ export default function SupportScreen() {
           </Text>
 
           <Text style={styles.body}>
-            We don't run ads. We don't sell your data. We never will. The app is free for every user and free for every contributor because we want this to be a place where the only thing being asked of you is to show up — for yourself, or for someone else.
+            We don't run ads. We don't sell your data. We never will. LifeVine is free for every person who uses it to find help, connect, and serve. Contributing organizations always have a free listing — and those who want greater reach in their community can choose to do more. Either way, the mission is the same: show up.
           </Text>
 
           <Text style={styles.body}>
