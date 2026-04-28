@@ -3,7 +3,7 @@ import {
   View, Text, Image, FlatList, StyleSheet,
   TouchableOpacity, ScrollView, Dimensions,
   NativeSyntheticEvent, NativeScrollEvent, ActivityIndicator,
-  Animated,
+  Animated, Share, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -229,6 +229,165 @@ function CategoryPicker({ onSelect }: { onSelect: (key: string) => void }) {
           </TouchableOpacity>
         ))}
       </View>
+    </View>
+  );
+}
+
+// ── Not yet supported banner ─────────────────────────────────────
+function NotYetSupportedBanner({
+  city, state: userState, userId,
+}: { city: string; state: string; userId?: string }) {
+  const [requested, setRequested] = useState(false);
+  const [checking, setChecking]   = useState(true);
+  const [loading, setLoading]     = useState(false);
+
+  // Check if user already submitted a request for this city
+  useEffect(() => {
+    if (!userId) { setChecking(false); return; }
+    (supabase as any)
+      .from('community_requests')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('city', city)
+      .eq('state', userState)
+      .limit(1)
+      .then(({ data }: any) => {
+        if (data && data.length > 0) setRequested(true);
+        setChecking(false);
+      });
+  }, [userId, city, userState]);
+
+  async function requestSupport() {
+    if (!userId || requested || loading) return;
+    setLoading(true);
+    const { error } = await (supabase as any)
+      .from('community_requests')
+      .insert({ user_id: userId, city, state: userState });
+    setLoading(false);
+    if (error) {
+      Alert.alert('Error', 'Could not submit request. Try again.');
+    } else {
+      setRequested(true);
+    }
+  }
+
+  async function shareWithOrg() {
+    try {
+      await Share.share({
+        title: `Bring LifeVine to ${city}`,
+        message:
+          `LifeVine is growing in ${city}, ${userState}! ` +
+          `If you're part of a church, ministry, or community organization — ` +
+          `you can be among the first contributors in your area. ` +
+          `Apply at https://lifevineapp.com`,
+      });
+    } catch { /* user dismissed */ }
+  }
+
+  const locationLabel = [city, userState].filter(Boolean).join(', ');
+
+  return (
+    <View style={notYetStyles.wrap}>
+      <Text style={notYetStyles.seedIcon}>🌱</Text>
+      <Text style={notYetStyles.title}>LifeVine is growing in {locationLabel}!</Text>
+      <Text style={notYetStyles.body}>
+        Your area doesn't have contributors yet — but your request helps us get
+        there faster. Let us know you're here.
+      </Text>
+
+      {/* Request support CTA */}
+      {!checking && (
+        <TouchableOpacity
+          style={[notYetStyles.primaryBtn, requested && notYetStyles.primaryBtnDone]}
+          onPress={requestSupport}
+          disabled={requested || loading}
+          activeOpacity={0.8}
+        >
+          {loading
+            ? <ActivityIndicator color="#fff" size="small" />
+            : <Text style={notYetStyles.primaryBtnText}>
+                {requested ? '✓ Support Requested!' : `Request Support for ${city}`}
+              </Text>
+          }
+        </TouchableOpacity>
+      )}
+
+      {/* Share CTA */}
+      <TouchableOpacity style={notYetStyles.shareBtn} onPress={shareWithOrg} activeOpacity={0.75}>
+        <Text style={notYetStyles.shareBtnText}>
+          Know a local organization? Share LifeVine with them →
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ── Browse contributors in other areas ───────────────────────────
+// Shows when user's area has no content — gives them something to explore.
+// Sort: same state first → partner/featured → name alphabetical.
+function BrowseOtherAreas({
+  excludeCity, excludeState,
+}: { excludeCity?: string; excludeState?: string }) {
+  const [orgs, setOrgs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      // Fetch all active orgs (no location filter) — we sort client-side
+      const { data } = await supabase
+        .from('organizations')
+        .select('id, name, city, state, is_partner, is_featured')
+        .eq('is_active', true)
+        .is('deleted_at', null)
+        .limit(40);
+
+      const list = (data ?? []) as any[];
+      const ec = excludeCity?.toLowerCase()  ?? '';
+      const es = excludeState?.toLowerCase() ?? '';
+
+      // Remove the user's own city (they already know nothing is there)
+      const filtered = ec
+        ? list.filter(o => !(o.city?.toLowerCase() === ec && o.state?.toLowerCase() === es))
+        : list;
+
+      // Sort: same-state first → partner → featured → name
+      filtered.sort((a, b) => {
+        const aState = a.state?.toLowerCase() ?? '';
+        const bState = b.state?.toLowerCase() ?? '';
+        const aSameState = es && aState === es ? 0 : 1;
+        const bSameState = es && bState === es ? 0 : 1;
+        if (aSameState !== bSameState) return aSameState - bSameState;
+        if (a.is_partner !== b.is_partner) return b.is_partner ? 1 : -1;
+        if (a.is_featured !== b.is_featured) return b.is_featured ? 1 : -1;
+        return (a.name ?? '').localeCompare(b.name ?? '');
+      });
+
+      setOrgs(filtered.slice(0, 20));
+      setLoading(false);
+    }
+    load();
+  }, [excludeCity, excludeState]);
+
+  if (loading || orgs.length === 0) return null;
+
+  return (
+    <View style={browseStyles.wrap}>
+      <View style={styles.sectionHeadRow}>
+        <Text style={browseStyles.label}>BROWSE OTHER AREAS</Text>
+        <TouchableOpacity onPress={() => router.push('/browse-contributors' as any)} activeOpacity={0.75}>
+          <Text style={styles.seeAll}>See All →</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={browseStyles.sub}>
+        See what LifeVine looks like in communities already connected
+      </Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.hScrollContent}
+      >
+        {orgs.map(org => <OrgSmallCard key={org.id} org={org} />)}
+      </ScrollView>
     </View>
   );
 }
@@ -536,6 +695,19 @@ export default function HomeScreen() {
               />
               <CarouselDots count={featured.length} active={featuredIdx} />
             </>
+          ) : profile?.location_city ? (
+            // User has a location but nothing in their area
+            <>
+              <NotYetSupportedBanner
+                city={profile.location_city}
+                state={profile.location_state ?? ''}
+                userId={profile.id}
+              />
+              <BrowseOtherAreas
+                excludeCity={profile.location_city}
+                excludeState={profile.location_state ?? undefined}
+              />
+            </>
           ) : (
             <View style={featStyles.empty}>
               <Text style={featStyles.emptyText}>
@@ -599,9 +771,22 @@ export default function HomeScreen() {
                 </>
               )
             ) : (
-              <Text style={styles.emptyText}>
-                Nothing in this category near you yet.
-              </Text>
+              // Category returned nothing for their location
+              profile?.location_city ? (
+                <>
+                  <NotYetSupportedBanner
+                    city={profile.location_city}
+                    state={profile.location_state ?? ''}
+                    userId={profile.id}
+                  />
+                  <BrowseOtherAreas
+                    excludeCity={profile.location_city}
+                    excludeState={profile.location_state ?? undefined}
+                  />
+                </>
+              ) : (
+                <Text style={styles.emptyText}>Nothing in this category yet.</Text>
+              )
             )}
           </View>
         ) : null}
@@ -758,6 +943,49 @@ const pickerStyles = StyleSheet.create({
     borderColor: '#E5DDD4',
   },
   chipText: { fontSize: 14, fontWeight: '600', color: '#1C1917' },
+});
+
+// ── Not-yet-supported banner styles ─────────────────────────────
+const notYetStyles = StyleSheet.create({
+  wrap: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+    alignItems: 'center',
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  seedIcon: { fontSize: 40, marginBottom: 10 },
+  title: {
+    fontSize: 18, fontWeight: '800', color: '#1C1917',
+    letterSpacing: -0.3, textAlign: 'center', marginBottom: 8,
+  },
+  body: {
+    fontSize: 13, color: '#78716C', lineHeight: 20,
+    textAlign: 'center', marginBottom: 18,
+  },
+  primaryBtn: {
+    backgroundColor: '#2D6A4F', borderRadius: 50,
+    paddingHorizontal: 24, paddingVertical: 13,
+    width: '100%', alignItems: 'center', marginBottom: 10,
+    minHeight: 46,
+  },
+  primaryBtnDone: { backgroundColor: '#52A378' },
+  primaryBtnText: { color: '#FFFFFF', fontWeight: '800', fontSize: 14 },
+  shareBtn: { paddingVertical: 8 },
+  shareBtnText: { fontSize: 13, color: '#B8864E', fontWeight: '700', textAlign: 'center' },
+});
+
+// ── Browse other areas styles ────────────────────────────────────
+const browseStyles = StyleSheet.create({
+  wrap: { marginTop: 24 },
+  label: { fontSize: 11, fontWeight: '800', color: '#A8A29E', letterSpacing: 1.4, marginBottom: 4 },
+  sub: { fontSize: 13, color: '#78716C', marginBottom: 12 },
 });
 
 // ── Screen styles ────────────────────────────────────────────────
