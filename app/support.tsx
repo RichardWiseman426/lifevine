@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { BackHeader } from '../src/components/BackHeader';
 
-// TODO: Replace with your real Stripe Payment Link from stripe.com/payment-links
-const LIFEVINE_DONATION_URL = 'https://donate.stripe.com/REPLACE_WITH_YOUR_LINK';
+// Replace with your real Stripe Payment Link when ready: stripe.com/payment-links
+// Leave as empty string to show the "coming soon" state instead of a broken link.
+const LIFEVINE_DONATION_URL = '';
 
 export default function SupportScreen() {
   return (
@@ -65,13 +66,29 @@ export default function SupportScreen() {
 
         {/* Donate button */}
         <View style={styles.donateBlock}>
-          <TouchableOpacity
-            style={styles.donateBtn}
-            onPress={() => Linking.openURL(LIFEVINE_DONATION_URL)}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.donateBtnText}>💛  Make a Gift to LifeVine</Text>
-          </TouchableOpacity>
+          {LIFEVINE_DONATION_URL ? (
+            <TouchableOpacity
+              style={styles.donateBtn}
+              onPress={() => Linking.openURL(LIFEVINE_DONATION_URL)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.donateBtnText}>💛  Make a Gift to LifeVine</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.donateSoon}>
+              <Text style={styles.donateSoonTitle}>Giving Portal Coming Soon</Text>
+              <Text style={styles.donateSoonBody}>
+                Secure online giving will be available here shortly.{'\n'}
+                To give now, reach out at{' '}
+                <Text
+                  style={styles.donateSoonLink}
+                  onPress={() => Linking.openURL('mailto:hello@lifevine.app?subject=Gift to LifeVine')}
+                >
+                  hello@lifevine.app
+                </Text>
+              </Text>
+            </View>
+          )}
           <Text style={styles.disclaimer}>
             Gifts to LifeVine are platform support contributions and are not tax-deductible charitable donations. Card details are processed securely by Stripe and are never stored by LifeVine.
           </Text>
@@ -171,6 +188,18 @@ const styles = StyleSheet.create({
 
   // Donate
   donateBlock: { paddingHorizontal: 24, marginBottom: 32 },
+  donateSoon: {
+    backgroundColor: '#F5F0E8',
+    borderRadius: 14,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E5DDD4',
+  },
+  donateSoonTitle: { fontSize: 16, fontWeight: '800', color: '#1C1917', marginBottom: 6 },
+  donateSoonBody: { fontSize: 14, color: '#78716C', textAlign: 'center', lineHeight: 22 },
+  donateSoonLink: { color: '#2D6A4F', fontWeight: '700' },
   donateBtn: {
     backgroundColor: '#B8864E',
     borderRadius: 14,
