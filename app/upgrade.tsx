@@ -189,10 +189,6 @@ export default function UpgradeScreen() {
 
             <View style={styles.tierHeader}>
               <Text style={styles.tierName}>{tier.name}</Text>
-              <View style={styles.priceRow}>
-                <Text style={[styles.tierPrice, { color: tier.accent }]}>{tier.price}</Text>
-                <Text style={styles.tierCadence}>/{tier.cadence}</Text>
-              </View>
               <Text style={styles.tierTagline}>{tier.tagline}</Text>
             </View>
 
@@ -252,7 +248,7 @@ export default function UpgradeScreen() {
                   {selectedTier.name}
                 </Text>
                 <Text style={styles.summaryPrice}>
-                  {selectedTier.price} {selectedTier.cadence}
+                  No payment required — we'll follow up with details.
                 </Text>
               </View>
             )}

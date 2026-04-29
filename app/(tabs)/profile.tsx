@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { useAuthStore } from '../../src/store/auth';
 import { useSettingsStore, AffirmationPosition } from '../../src/store/settings';
+import { supabase } from '../../src/lib/supabase';
 // Note: skipIntentGate removed — intent gate no longer exists in the app.
 import { useMyOrgs, useUpdateProfile } from '../../src/hooks/useProfile';
 import { useDrawerStore } from '../../src/store/drawer';
@@ -51,6 +52,68 @@ export default function ProfileScreen() {
       { text: 'Cancel', style: 'cancel' },
       { text: 'Sign out', style: 'destructive', onPress: signOut },
     ]);
+  }
+
+  async function handleDeleteAccount() {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account and all personal data. Your testimonies will remain but become anonymous. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete My Account',
+          style: 'destructive',
+          onPress: () => {
+            // Second confirmation — Apple requires the user can't accidentally delete
+            Alert.alert(
+              'Are you absolutely sure?',
+              'Your account will be permanently deleted. There is no way to recover it.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Yes, Delete Forever',
+                  style: 'destructive',
+                  onPress: confirmDeleteAccount,
+                },
+              ]
+            );
+          },
+        },
+      ]
+    );
+  }
+
+  async function confirmDeleteAccount() {
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+    if (!token) {
+      Alert.alert('Error', 'Could not verify your session. Please sign in again.');
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        Alert.alert('Error', body.error ?? 'Account deletion failed. Please try again.');
+        return;
+      }
+
+      // Edge function deleted the auth user — sign out clears local session
+      await signOut();
+    } catch {
+      Alert.alert('Error', 'Could not connect. Check your internet and try again.');
+    }
   }
 
   async function handleAvatarUpload() {
@@ -331,8 +394,12 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={[styles.menuRow, { borderBottomWidth: 0 }]} onPress={handleSignOut}>
+          <TouchableOpacity style={styles.menuRow} onPress={handleSignOut}>
             <Text style={styles.menuRowTextDanger}>Sign Out</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.menuRow, { borderBottomWidth: 0 }]} onPress={handleDeleteAccount}>
+            <Text style={styles.menuRowTextDelete}>Delete Account</Text>
           </TouchableOpacity>
         </View>
 
@@ -599,6 +666,7 @@ const styles = StyleSheet.create({
   menuRowText: { fontSize: 15, color: '#1C1917', fontWeight: '500' },
   menuRowChevron: { fontSize: 20, color: '#D4C4B0' },
   menuRowTextDanger: { fontSize: 15, color: '#DC2626', fontWeight: '600' },
+  menuRowTextDelete: { fontSize: 15, color: '#9B1C1C', fontWeight: '500' },
 
   // Upgrade card
   upgradeCard: {
