@@ -4,9 +4,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
-// ── When your website is live, swap this to: 'https://lifevine.app/upgrade'
-// ── For now, upgrades are handled via email inquiry.
-const UPGRADE_URL = 'mailto:hello@lifevine.app';
+// ── Upgrade page hosted on GitHub Pages.
+// ── When a custom domain is live, swap to: 'https://lifevine.app/upgrade'
+const UPGRADE_URL = 'https://ricwis426.github.io/lifevine/upgrade.html';
 
 type TierKey = 'free' | 'enhanced' | 'partner';
 
@@ -129,9 +129,9 @@ export default function UpgradeScreen() {
         <View style={styles.howItWorks}>
           <Text style={styles.howLabel}>HOW UPGRADING WORKS</Text>
           <Text style={styles.howBody}>
-            Tap "Get Started" below and you'll be taken to our secure upgrade
-            page. Billing is handled outside the app so your payment information
-            stays in your hands — not Apple's.
+            Tap "Get Started" and you'll be taken to our upgrade page where
+            you can submit your request. Our team will reach out personally
+            to get everything set up — usually within one business day.
           </Text>
         </View>
 

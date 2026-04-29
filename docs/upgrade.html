@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributor Plans — LifeVine</title>
+  <meta name="description" content="Choose the right plan for your organization. Free to start. Upgrade when you're ready to reach more people." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --linen:     #F5F0E8;
+      --linen-mid: #EDE8DF;
+      --border:    #E5DDD4;
+      --ink:       #1C1917;
+      --muted:     #78716C;
+      --faint:     #A8A29E;
+      --green:     #2D6A4F;
+      --green-dk:  #1B5E20;
+      --green-lt:  #E8F5E9;
+      --amber:     #B8864E;
+      --amber-lt:  #FDF3E3;
+      --purple:    #7C3AED;
+      --purple-lt: #EDE9FE;
+      --white:     #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--linen);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Nav ─────────────────────────────────────────── */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .nav-life { color: var(--green-dk); }
+    .nav-vine { color: #4CAF50; }
+    .nav-back {
+      font-size: 14px;
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-back:hover { text-decoration: underline; }
+
+    /* ── Hero ────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 56px 24px 40px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .hero-sub {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── How it works banner ─────────────────────────── */
+    .how-banner {
+      background: var(--green-lt);
+      border: 1px solid #BBF7D0;
+      border-radius: 14px;
+      padding: 16px 20px;
+      max-width: 700px;
+      margin: 0 auto 40px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .how-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .how-text { font-size: 14px; color: #166534; line-height: 1.55; }
+    .how-text strong { font-weight: 700; }
+
+    /* ── Tier grid ───────────────────────────────────── */
+    .tiers {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 20px 64px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+
+    .tier-card {
+      background: var(--white);
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      padding: 28px;
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+    .tier-card:hover {
+      box-shadow: 0 8px 32px rgba(28,25,23,0.10);
+    }
+    .tier-card.featured {
+      border-width: 2.5px;
+      box-shadow: 0 6px 24px rgba(28,25,23,0.10);
+    }
+    .tier-card.free   { border-color: var(--green); }
+    .tier-card.enhanced { border-color: var(--amber); }
+    .tier-card.partner  { border-color: var(--purple); }
+
+    /* Popular ribbon */
+    .ribbon {
+      position: absolute;
+      top: -13px;
+      right: 20px;
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--white);
+    }
+    .ribbon.amber  { background: var(--amber); }
+
+    /* Tier name + price */
+    .tier-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      margin-bottom: 4px;
+    }
+    .price {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+    .price.green  { color: var(--green); }
+    .price.amber  { color: var(--amber); }
+    .price.purple { color: var(--purple); }
+    .cadence {
+      font-size: 14px;
+      color: var(--faint);
+      font-weight: 500;
+    }
+    .tagline {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    /* Divider */
+    .tier-divider {
+      height: 1px;
+      margin-bottom: 20px;
+      border-radius: 1px;
+    }
+    .tier-divider.free    { background: var(--green-lt); }
+    .tier-divider.enhanced { background: var(--amber-lt); }
+    .tier-divider.partner  { background: var(--purple-lt); }
+
+    /* Features */
+    .features { list-style: none; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
+    .feature-row { display: flex; align-items: center; gap: 10px; }
+    .check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .check.green  { background: var(--green-lt);  color: var(--green); }
+    .check.amber  { background: var(--amber-lt);  color: var(--amber); }
+    .check.purple { background: var(--purple-lt); color: var(--purple); }
+    .feature-text { font-size: 14px; color: var(--ink); line-height: 1.4; }
+
+    /* CTA buttons */
+    .cta {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .cta:hover { opacity: 0.88; transform: translateY(-1px); }
+    .cta:active { transform: translateY(0); }
+
+    .cta-default {
+      background: var(--linen-mid);
+      color: var(--faint);
+      cursor: default;
+      border: 1px solid var(--border);
+    }
+    .cta-default:hover { opacity: 1; transform: none; }
+    .cta-green  { background: var(--green);  color: var(--white); }
+    .cta-amber  { background: var(--amber);  color: var(--white); }
+    .cta-purple { background: var(--purple); color: var(--white); }
+
+    /* ── FAQ strip ───────────────────────────────────── */
+    .faq {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 20px 64px;
+    }
+    .faq-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .faq-item {
+      background: var(--white);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 18px 20px;
+      margin-bottom: 10px;
+    }
+    .faq-q {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .faq-a {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .faq-a a { color: var(--green); font-weight: 600; }
+
+    /* ── Footer ──────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 24px 20px 40px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-brand {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .footer-sub {
+      font-size: 12px;
+      color: var(--faint);
+      line-height: 1.6;
+    }
+    .footer-sub a { color: var(--green); text-decoration: none; font-weight: 600; }
+    .footer-sub a:hover { text-decoration: underline; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 480px) {
+      .hero { padding: 40px 20px 28px; }
+      .tier-card { padding: 22px 20px; }
+      .price { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a href="https://ricwis426.github.io/lifevine" class="nav-brand">
+      <span class="nav-life">Life</span><span class="nav-vine">Vine</span>
+    </a>
+    <a href="https://ricwis426.github.io/lifevine" class="nav-back">← Back</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="hero-eyebrow">Contributor Plans</p>
+    <h1 class="hero-title">Grow what you're building.</h1>
+    <p class="hero-sub">
+      Free works forever for getting started. Upgrade when you're ready
+      to reach more people and unlock the tools to do it well.
+    </p>
+  </section>
+
+  <!-- How it works -->
+  <div style="padding: 0 20px; max-width: 700px; margin: 0 auto 32px;">
+    <div class="how-banner">
+      <span class="how-icon">🔒</span>
+      <p class="how-text">
+        <strong>Billing is handled securely by email.</strong>
+        Select a plan below and tap "Get Started" — it opens a pre-filled
+        email to our team. We'll reach out within one business day to set
+        up your account and walk you through onboarding.
+        No card information is ever shared through the app.
+      </p>
+    </div>
+  </div>
+
+  <!-- Tiers -->
+  <div class="tiers">
+
+    <!-- FREE -->
+    <div class="tier-card free">
+      <div class="tier-name">Free</div>
+      <div class="price-row">
+        <span class="price green">$0</span>
+        <span class="cadence">/ always</span>
+      </div>
+      <p class="tagline">Get listed. Reach your community.</p>
+      <div class="tier-divider free"></div>
+      <ul class="features">
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">Public organization profile</span></li>
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">Photo gallery</span></li>
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">1 active event</span></li>
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">1 active opportunity</span></li>
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">1 team member</span></li>
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">Direct messaging with members</span></li>
+        <li class="feature-row"><span class="check green">✓</span><span class="feature-text">Listed in browse &amp; search</span></li>
+      </ul>
+      <span class="cta cta-default">Your default plan</span>
+    </div>
+
+    <!-- ENHANCED -->
+    <div class="tier-card enhanced featured">
+      <div class="ribbon amber">MOST POPULAR</div>
+      <div class="tier-name">Enhanced</div>
+      <div class="price-row">
+        <span class="price amber">$49</span>
+        <span class="cadence">/ per month</span>
+      </div>
+      <p class="tagline">Built for active ministries.</p>
+      <div class="tier-divider enhanced"></div>
+      <ul class="features">
+        <li class="feature-row"><span class="check amber">✓</span><span class="feature-text">Everything in Free</span></li>
+        <li class="feature-row"><span class="check amber">✓</span><span class="feature-text">Up to 3 active events</span></li>
+        <li class="feature-row"><span class="check amber">✓</span><span class="feature-text">Up to 3 active opportunities</span></li>
+        <li class="feature-row"><span class="check amber">✓</span><span class="feature-text">Up to 5 team members</span></li>
+        <li class="feature-row"><span class="check amber">✓</span><span class="feature-text">Featured contributor placement</span></li>
+        <li class="feature-row"><span class="check amber">✓</span><span class="feature-text">Donation link on profile</span></li>
+      </ul>
+      <a
+        class="cta cta-amber"
+        href="mailto:hello@lifevine.app?subject=LifeVine%20Enhanced%20Plan%20%E2%80%94%20Upgrade%20Request&body=Hi%20LifeVine%20team%2C%0A%0AI%27d%20like%20to%20upgrade%20to%20the%20Enhanced%20plan%20(%2449%2Fmonth).%0A%0AOrganization%20name%3A%20%0AContact%20name%3A%20%0ABest%20email%3A%20%0APhone%20(optional)%3A%20%0A%0AAnything%20we%20should%20know%3A%0A"
+      >
+        Get Started →
+      </a>
+    </div>
+
+    <!-- PARTNER -->
+    <div class="tier-card partner">
+      <div class="tier-name">Partner</div>
+      <div class="price-row">
+        <span class="price purple">$99</span>
+        <span class="cadence">/ per month</span>
+      </div>
+      <p class="tagline">For established organizations.</p>
+      <div class="tier-divider partner"></div>
+      <ul class="features">
+        <li class="feature-row"><span class="check purple">✓</span><span class="feature-text">Everything in Enhanced</span></li>
+        <li class="feature-row"><span class="check purple">✓</span><span class="feature-text">Up to 25 team members</span></li>
+        <li class="feature-row"><span class="check purple">✓</span><span class="feature-text">Promoted slots on Home &amp; Explore</span></li>
+        <li class="feature-row"><span class="check purple">✓</span><span class="feature-text">Verified Partner badge</span></li>
+        <li class="feature-row"><span class="check purple">✓</span><span class="feature-text">Custom category spotlight</span></li>
+        <li class="feature-row"><span class="check purple">✓</span><span class="feature-text">Direct line to LifeVine team</span></li>
+      </ul>
+      <a
+        class="cta cta-purple"
+        href="mailto:hello@lifevine.app?subject=LifeVine%20Partner%20Plan%20%E2%80%94%20Upgrade%20Request&body=Hi%20LifeVine%20team%2C%0A%0AI%27d%20like%20to%20upgrade%20to%20the%20Partner%20plan%20(%2499%2Fmonth).%0A%0AOrganization%20name%3A%20%0AContact%20name%3A%20%0ABest%20email%3A%20%0APhone%20(optional)%3A%20%0A%0AAnything%20we%20should%20know%3A%0A"
+      >
+        Get Started →
+      </a>
+    </div>
+
+  </div>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2 class="faq-title">Common Questions</h2>
+
+    <div class="faq-item">
+      <p class="faq-q">How does billing work?</p>
+      <p class="faq-a">
+        After you submit your request, the LifeVine team will reach out personally
+        to set up your account and handle billing directly. We use Stripe for secure
+        payment processing. Your card information is never shared through the app.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I cancel anytime?</p>
+      <p class="faq-a">
+        Yes. No contracts, no cancellation fees. Email
+        <a href="mailto:hello@lifevine.app">hello@lifevine.app</a>
+        anytime and we'll take care of it.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What happens to my profile if I downgrade?</p>
+      <p class="faq-a">
+        Your profile and all content stays. You'll return to the Free plan limits —
+        extra events and opportunities beyond the free tier will be archived
+        (not deleted) and reactivated if you upgrade again.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is the free plan really free forever?</p>
+      <p class="faq-a">
+        Yes. The Free tier has no expiration and no credit card required.
+        It exists because we believe every organization that wants to serve
+        their community deserves a presence on LifeVine.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">I'm not a contributor yet. How do I get listed?</p>
+      <p class="faq-a">
+        Open the LifeVine app, go to Profile, and tap
+        <strong>"Become a Contributor"</strong> to submit your organization for review.
+        Approval typically takes 1–2 business days.
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p class="footer-brand">
+      <span style="color:#1B5E20;">Life</span><span style="color:#4CAF50;">Vine</span>
+    </p>
+    <p class="footer-sub">
+      Questions? Email us at
+      <a href="mailto:hello@lifevine.app">hello@lifevine.app</a><br />
+      <a href="https://ricwis426.github.io/lifevine/privacy.html">Privacy Policy</a>
+      &nbsp;·&nbsp;
+      <a href="https://ricwis426.github.io/lifevine/terms.html">Terms of Service</a>
+    </p>
+  </footer>
+
+</body>
+</html>
