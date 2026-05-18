@@ -1,0 +1,206 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* LifeVine brand tokens */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-light: var(--brand-light);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-warm-soft: var(--accent-warm-soft);
+  --color-surface-warm: var(--surface-warm);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* LifeVine warm palette */
+  --background: #F5F0E8;          /* warm linen */
+  --foreground: #1C1917;          /* warm near-black */
+  --card: #FFFFFF;
+  --card-foreground: #1C1917;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1917;
+  --primary: #2D6A4F;             /* forest green */
+  --primary-foreground: #FFFFFF;
+  --secondary: #FAF7F2;           /* warm surface */
+  --secondary-foreground: #1C1917;
+  --muted: #EDE7DF;
+  --muted-foreground: #78716C;    /* warm gray */
+  --accent: #FDF3E3;              /* cream */
+  --accent-foreground: #B8864E;   /* warm amber */
+  --destructive: #C0392B;
+  --border: #E5DDD4;              /* warm light border */
+  --input: #E5DDD4;
+  --ring: #2D6A4F;
+
+  --brand: #2D6A4F;
+  --brand-foreground: #FFFFFF;
+  --brand-light: #52B788;
+  --brand-soft: rgba(45, 106, 79, 0.10);
+  --accent-warm: #B8864E;
+  --accent-warm-soft: #FDF3E3;
+  --surface-warm: #FAF7F2;
+
+  --chart-1: #2D6A4F;
+  --chart-2: #52B788;
+  --chart-3: #B8864E;
+  --chart-4: #78716C;
+  --chart-5: #A8A29E;
+
+  --radius: 0.875rem;             /* 14px — matches app's 14px button radius */
+
+  --sidebar: #FAF7F2;
+  --sidebar-foreground: #1C1917;
+  --sidebar-primary: #2D6A4F;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(45, 106, 79, 0.10);
+  --sidebar-accent-foreground: #2D6A4F;
+  --sidebar-border: #E5DDD4;
+  --sidebar-ring: #2D6A4F;
+}
+
+.dark {
+  --background: #1C1917;
+  --foreground: #F5F0E8;
+  --card: #292524;
+  --card-foreground: #F5F0E8;
+  --popover: #292524;
+  --popover-foreground: #F5F0E8;
+  --primary: #52B788;
+  --primary-foreground: #1C1917;
+  --secondary: #292524;
+  --secondary-foreground: #F5F0E8;
+  --muted: #292524;
+  --muted-foreground: #A8A29E;
+  --accent: #292524;
+  --accent-foreground: #B8864E;
+  --destructive: #C0392B;
+  --border: rgba(245, 240, 232, 0.10);
+  --input: rgba(245, 240, 232, 0.15);
+  --ring: #52B788;
+  --brand: #52B788;
+  --brand-foreground: #1C1917;
+  --brand-light: #52B788;
+  --brand-soft: rgba(82, 183, 136, 0.15);
+  --accent-warm: #B8864E;
+  --accent-warm-soft: rgba(184, 134, 78, 0.15);
+  --surface-warm: #292524;
+  --chart-1: #52B788;
+  --chart-2: #2D6A4F;
+  --chart-3: #B8864E;
+  --chart-4: #A8A29E;
+  --chart-5: #78716C;
+  --sidebar: #292524;
+  --sidebar-foreground: #F5F0E8;
+  --sidebar-primary: #52B788;
+  --sidebar-primary-foreground: #1C1917;
+  --sidebar-accent: rgba(82, 183, 136, 0.15);
+  --sidebar-accent-foreground: #52B788;
+  --sidebar-border: rgba(245, 240, 232, 0.10);
+  --sidebar-ring: #52B788;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01", "ss03", "cv02";
+    font-variant-numeric: tabular-nums;
+  }
+  h1, h2, h3, h4, h5 {
+    letter-spacing: -0.022em;
+    font-feature-settings: "ss01";
+  }
+  h1 { letter-spacing: -0.028em; }
+  /* Apple-style focus ring */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.25);
+    border-radius: inherit;
+  }
+}
+
+/* Soft surface utility for cards */
+.lv-surface {
+  background: #FFFFFF;
+  border: 1px solid #ECE6DC;
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px rgba(28, 25, 23, 0.04),
+    0 4px 16px rgba(28, 25, 23, 0.04);
+}
+
+.lv-surface-hover {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.lv-surface-hover:hover {
+  transform: translateY(-1px);
+  border-color: rgba(45, 106, 79, 0.35);
+  box-shadow:
+    0 2px 4px rgba(28, 25, 23, 0.05),
+    0 8px 24px rgba(28, 25, 23, 0.07);
+}
+
+/* LifeVine wordmark */
+.lv-wordmark {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.lv-wordmark .life { color: #1B5E20; }
+.lv-wordmark .vine { color: #4CAF50; }
